@@ -315,6 +315,18 @@
     box-shadow: 0 0 8px var(--green);
   }
   .ep-dot.upcoming { background: var(--border); border: 2px solid var(--text-dim); }
+  .ep-dot.tomorrow {
+    background: var(--amber);
+    box-shadow: 0 0 8px var(--amber);
+  }
+  .ep-dot.tomorrow::after {
+    content: '';
+    position: absolute;
+    inset: -3px;
+    border-radius: 50%;
+    border: 2px solid var(--amber);
+    animation: pulse-dot 1.5s ease-in-out infinite;
+  }
   .ep-dot.today::after {
     content: '';
     position: absolute;
@@ -344,6 +356,7 @@
     text-overflow: ellipsis;
   }
   .ep-name.today-ep { color: var(--green); }
+  .ep-name.tomorrow-ep { color: var(--amber); }
   .ep-date {
     font-size: 12px;
     color: var(--text-dim);
@@ -360,6 +373,7 @@
     flex-shrink: 0;
   }
   .ep-time-badge.today-badge { background: #22c55e22; color: var(--green); font-weight: 600; }
+  .ep-time-badge.tomorrow-badge { background: #f59e0b22; color: var(--amber); font-weight: 600; }
 
   /* ── Empty state ── */
   .empty-state {
@@ -534,11 +548,34 @@ function todayStr() {
   return `${y}-${m}-${d}`;
 }
 
-/** Classify an episode based on its RELEASE date (same calendar day, user's local) */
-function classifyDate(dateStr) {
+/** Tomorrow's date (YYYY-MM-DD) in the user's local timezone */
+function tomorrowStr() {
+  const now = new Date();
+  now.setDate(now.getDate() + 1);
+  const y = now.getFullYear();
+  const m = String(now.getMonth() + 1).padStart(2, '0');
+  const d = String(now.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
+}
+
+/** Get the calendar date of an episode in the user's local timezone */
+function getLocalDate(dateStr, timezone, hour, minute) {
+  const ts = episodeTimestamp(dateStr, timezone, hour, minute);
+  const d = new Date(ts);
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+}
+
+/** Classify an episode: 'past' | 'today' | 'tomorrow' | 'upcoming'
+ *  Uses the episode's actual release moment in the USER's timezone. */
+function classifyDate(dateStr, timezone, hour, minute) {
+  const epLocal = getLocalDate(dateStr, timezone, hour, minute);
   const t = todayStr();
-  if (dateStr === t) return 'today';
-  if (dateStr < t) return 'past';
+  if (epLocal === t) return 'today';
+  if (epLocal === tomorrowStr()) return 'tomorrow';
+  if (epLocal < t) return 'past';
   return 'upcoming';
 }
 
@@ -573,49 +610,70 @@ function formatTimezone() {
 
 // ── Render Functions ──
 
-function renderSpotlight(todayEpisodes) {
+function renderSpotlight(todayEps, tomorrowEps) {
   const el = document.getElementById('spotlight');
-  if (todayEpisodes.length === 0) {
-    el.classList.remove('has-today');
-    el.innerHTML = '';
+  if (todayEps.length > 0) {
+    const ep = todayEps[0];
+    const localTime = formatLocalTime(ep.date, ep.timezone, ep.hour, ep.minute);
+    el.classList.add('has-today');
+    el.innerHTML = `
+      <div class="spotlight-title"><span class="dot" style="background:var(--green);box-shadow:0 0 8px var(--green);"></span> Airing Today</div>
+      <div class="spotlight-card" style="background:linear-gradient(135deg, #22c55e0d, #22c55e05);border-color:#22c55e33;">
+        <span class="show-badge" style="background:var(--green);">${ep.showName}</span>
+        <div class="ep-info">
+          <div class="ep-title">${ep.ep} — ${ep.title}</div>
+          <div class="ep-meta">${ep.platform} • ${formatDate(ep.date)}</div>
+        </div>
+        <div class="ep-time" style="color:var(--green);">${localTime}</div>
+      </div>
+    `;
     return;
   }
-  const ep = todayEpisodes[0];
-  const localTime = formatLocalTime(ep.date, ep.timezone, ep.hour, ep.minute);
-  el.classList.add('has-today');
-  el.innerHTML = `
-    <div class="spotlight-title"><span class="dot"></span> Airing Today</div>
-    <div class="spotlight-card">
-      <span class="show-badge">${ep.showName}</span>
-      <div class="ep-info">
-        <div class="ep-title">${ep.ep} — ${ep.title}</div>
-        <div class="ep-meta">${ep.platform} • ${formatDate(ep.date)}</div>
+  if (tomorrowEps.length > 0) {
+    const ep = tomorrowEps[0];
+    const localTime = formatLocalTime(ep.date, ep.timezone, ep.hour, ep.minute);
+    el.classList.add('has-today');
+    el.innerHTML = `
+      <div class="spotlight-title"><span class="dot" style="background:var(--amber);box-shadow:0 0 8px var(--amber);"></span> Next Up — Tomorrow</div>
+      <div class="spotlight-card" style="background:linear-gradient(135deg, #f59e0b0d, #f59e0b05);border-color:#f59e0b33;">
+        <span class="show-badge" style="background:var(--amber);color:#000;">${ep.showName}</span>
+        <div class="ep-info">
+          <div class="ep-title">${ep.ep} — ${ep.title}</div>
+          <div class="ep-meta">${ep.platform} • ${formatDate(ep.date)}</div>
+        </div>
+        <div class="ep-time" style="color:var(--amber);">${localTime}</div>
       </div>
-      <div class="ep-time">${localTime}</div>
-    </div>
-  `;
+    `;
+    return;
+  }
+  el.classList.remove('has-today');
+  el.innerHTML = '';
 }
 
 function renderShowCard(show) {
   const total = show.schedule.length;
-  const past = show.schedule.filter(e => classifyDate(e.date) === 'past').length;
+  const past = show.schedule.filter(e => classifyDate(e.date, show.timezone, show.releaseHour, show.releaseMinute) === 'past').length;
   const pct = Math.round((past / total) * 100);
 
   let itemsHtml = show.schedule.map(ep => {
-    const cls = classifyDate(ep.date);
+    const cls = classifyDate(ep.date, show.timezone, show.releaseHour, show.releaseMinute);
     const localTime = formatLocalTime(ep.date, show.timezone, show.releaseHour, show.releaseMinute);
     const dateDisplay = formatDate(ep.date);
+    const nameCls = cls === 'today' ? 'today-ep' : cls === 'tomorrow' ? 'tomorrow-ep' : '';
+    let badge;
+    if (cls === 'today') badge = '<span class="ep-time-badge today-badge">TODAY</span>';
+    else if (cls === 'tomorrow') badge = '<span class="ep-time-badge tomorrow-badge">TOMORROW</span>';
+    else if (cls === 'past') badge = '<span class="ep-time-badge">Aired</span>';
+    else badge = `<span class="ep-time-badge">${localTime}</span>`;
     return `
       <div class="ep-item ${cls === 'past' ? 'past' : ''}">
         <span class="ep-dot ${cls}"></span>
         <span class="ep-number">${ep.ep}</span>
         <div class="ep-details">
-          <div class="ep-name ${cls === 'today' ? 'today-ep' : ''}">${ep.title}</div>
+          <div class="ep-name ${nameCls}">${ep.title}</div>
           <div class="ep-date">${dateDisplay} · ${localTime}</div>
         </div>
-        ${cls === 'today' ? '<span class="ep-time-badge today-badge">TODAY</span>' :
-          cls === 'past' ? '<span class="ep-time-badge">Aired</span>' :
-          `<span class="ep-time-badge">${localTime}</span>`}
+        ${badge}
       </div>
     `;
   }).join('');
@@ -647,25 +705,20 @@ function renderShowCard(show) {
 
 function renderAll(filter) {
   const todayEps = [];
+  const tomorrowEps = [];
   const grid = document.getElementById('show-grid');
 
   let html = '';
   SHOWS.forEach(show => {
-    const showHasToday = show.schedule.some(ep => classifyDate(ep.date) === 'today');
-    const showHasUpcoming = show.schedule.some(ep => classifyDate(ep.date) === 'upcoming');
+    const showHasToday = show.schedule.some(ep => classifyDate(ep.date, show.timezone, show.releaseHour, show.releaseMinute) === 'today');
+    const showHasUpcoming = show.schedule.some(ep => ['today','tomorrow','upcoming'].includes(classifyDate(ep.date, show.timezone, show.releaseHour, show.releaseMinute)));
 
-    // Collect today's episodes for spotlight
+    // Collect today's & tomorrow's episodes for spotlight
     show.schedule.forEach(ep => {
-      if (classifyDate(ep.date) === 'today') {
-        todayEps.push({
-          ...ep,
-          showName: show.name,
-          platform: show.platform,
-          timezone: show.timezone,
-          hour: show.releaseHour,
-          minute: show.releaseMinute,
-        });
-      }
+      const cls = classifyDate(ep.date, show.timezone, show.releaseHour, show.releaseMinute);
+      const data = { ...ep, showName: show.name, platform: show.platform, timezone: show.timezone, hour: show.releaseHour, minute: show.releaseMinute };
+      if (cls === 'today') todayEps.push(data);
+      else if (cls === 'tomorrow') tomorrowEps.push(data);
     });
 
     // Filter
@@ -675,7 +728,7 @@ function renderAll(filter) {
     html += renderShowCard(show);
   });
 
-  renderSpotlight(todayEps);
+  renderSpotlight(todayEps, tomorrowEps);
   grid.innerHTML = html || `<div class="empty-state"><div class="icon">📭</div><div class="msg">No episodes match this filter.</div></div>`;
 }
 
