@@ -4,47 +4,78 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>TV Shows Tracker — Episode Release Dashboard</title>
-<style>
-  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 
+<!-- Type: Figtree (display), DM Sans (body), JetBrains Mono (data) -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300..800;1,9..40,300..800&family=Figtree:ital,wght@0,300..900;1,300..900&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap" rel="stylesheet">
+
+<style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
   :root {
-    --bg: #0a0a0f;
-    --bg-card: #12121a;
+    --bg:            #08080c;
+    --bg-card:       #12121a;
     --bg-card-hover: #181824;
-    --border: #1e1e30;
-    --border-subtle: #161622;
-    --text: #e8e8f0;
-    --text-muted: #8888a0;
-    --text-dim: #555570;
-    --accent-1: #7c3aed;
-    --accent-2: #2563eb;
-    --accent-3: #06b6d4;
-    --green: #22c55e;
-    --amber: #f59e0b;
-    --red: #ef4444;
-    --gradient-header: linear-gradient(135deg, #1a0533 0%, #0a1628 50%, #051520 100%);
-    --gradient-show-1: linear-gradient(135deg, #7c3aed22, #2563eb22);
-    --gradient-show-2: linear-gradient(135deg, #06b6d422, #22c55e22);
-    --gradient-show-3: linear-gradient(135deg, #f59e0b22, #ef444422);
-    --radius: 12px;
-    --radius-sm: 8px;
+    --border:        #1e1e30;
+    --border-subtle: #151522;
+    --text:          #ece8e0;
+    --text-muted:    #8a8694;
+    --text-dim:      #55506a;
+    --red:           #e84a4a;    /* live / now airing — broadcast red */
+    --amber:         #e89a3a;    /* tomorrow / countdown <6h */
+    --blue:          #3a7bd5;    /* streaming / accent */
+    --gradient-header: linear-gradient(135deg, #140808 0%, #0a0a18 50%, #08080c 100%);
+    --gradient-1:    linear-gradient(135deg, #e84a4a11, #3a7bd511);
+    --gradient-2:    linear-gradient(135deg, #3a7bd511, #e89a3a11);
+    --gradient-3:    linear-gradient(135deg, #e89a3a11, #e84a4a11);
+    --radius:        12px;
+    --radius-sm:     8px;
   }
 
   body {
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
     background: var(--bg);
     color: var(--text);
+    font-family: 'DM Sans', system-ui, -apple-system, sans-serif;
     min-height: 100vh;
-    line-height: 1.6;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    position: relative;
+    overflow-x: hidden;
   }
+  /* Subtle scanline overlay */
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 999;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0,0,0,0.03) 2px,
+      rgba(0,0,0,0.03) 4px
+    );
+  }
+
+  /* ── Typography scale ── */
+  .hdg-xl { font-family: 'Figtree', sans-serif; font-weight: 700; font-size: 28px; letter-spacing: -0.03em; line-height: 1.2; }
+  .hdg-lg { font-family: 'Figtree', sans-serif; font-weight: 700; font-size: 22px; letter-spacing: -0.02em; line-height: 1.25; }
+  .hdg-md { font-family: 'Figtree', sans-serif; font-weight: 600; font-size: 16px; letter-spacing: -0.01em; }
+  .hdg-sm { font-family: 'Figtree', sans-serif; font-weight: 600; font-size: 13px; text-transform: uppercase; letter-spacing: 0.08em; }
+  .body-md { font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 400; }
+  .body-sm { font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 400; color: var(--text-muted); }
+  .data-lg { font-family: 'JetBrains Mono', monospace; font-size: 18px; font-weight: 700; letter-spacing: -0.04em; }
+  .data-md { font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 500; letter-spacing: -0.02em; }
+  .data-sm { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 500; color: var(--text-dim); }
 
   /* ── Header ── */
   .header {
     background: var(--gradient-header);
     border-bottom: 1px solid var(--border);
-    padding: 32px 24px 24px;
+    padding: 28px 24px 20px;
     position: relative;
     overflow: hidden;
   }
@@ -52,7 +83,7 @@
     content: '';
     position: absolute;
     inset: 0;
-    background: radial-gradient(ellipse 600px 200px at 50% -80px, #7c3aed33, transparent);
+    background: radial-gradient(ellipse 700px 250px at 50% -120px, #e84a4a22, transparent 70%);
     pointer-events: none;
   }
   .header-content {
@@ -66,86 +97,109 @@
     justify-content: space-between;
     align-items: flex-start;
     flex-wrap: wrap;
-    gap: 16px;
+    gap: 12px;
   }
-  .header-title {
-    font-size: 28px;
-    font-weight: 800;
-    letter-spacing: -0.5px;
-    background: linear-gradient(135deg, #c084fc, #60a5fa, #22d3ee);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+
+  /* Signal bars — signature broadcast element */
+  .signal-bars {
+    display: flex;
+    align-items: flex-end;
+    gap: 4px;
+    margin-top: 10px;
   }
+  .signal-bar {
+    width: 3px;
+    border-radius: 2px;
+    background: currentColor;
+    transition: height 0.4s ease;
+  }
+  .signal-bar:nth-child(1) { height: 12px; color: var(--red); }
+  .signal-bar:nth-child(2) { height: 20px; color: var(--amber); }
+  .signal-bar:nth-child(3) { height: 28px; color: var(--blue); }
+
+  .header-title { color: var(--text); }
+  .header-title .accent-red { color: var(--red); }
+  .header-title .accent-amber { color: var(--amber); }
+  .header-title .accent-blue { color: var(--blue); }
   .header-subtitle {
-    font-size: 14px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
     color: var(--text-muted);
-    margin-top: 2px;
-    font-weight: 400;
+    margin-top: 4px;
   }
-  .header-time {
-    text-align: right;
-  }
+  .header-time { text-align: right; }
   .header-time .time {
-    font-size: 20px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 22px;
     font-weight: 700;
     color: var(--text);
+    letter-spacing: -0.03em;
   }
   .header-time .tz {
-    font-size: 12px;
+    font-size: 11px;
+    font-weight: 500;
     color: var(--text-muted);
+    margin-top: 1px;
   }
   .header-time .date {
-    font-size: 13px;
+    font-size: 12px;
     color: var(--text-dim);
     margin-top: 2px;
   }
 
-  /* ── Season countdown row ── */
+  /* ── Season chips ── */
   .season-row {
     max-width: 1200px;
-    margin: 20px auto 0;
+    margin: 18px auto 0;
     padding: 0 24px;
     display: flex;
-    gap: 12px;
+    gap: 10px;
     flex-wrap: wrap;
   }
   .season-chip {
     display: flex;
     align-items: center;
     gap: 6px;
-    font-size: 12px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
     padding: 5px 12px;
     border-radius: 20px;
     background: var(--bg-card);
     border: 1px solid var(--border);
     color: var(--text-muted);
+    position: relative;
+    overflow: hidden;
   }
   .season-chip .num { font-weight: 700; color: var(--text); }
-  .season-chip .label { font-weight: 500; }
+  .season-chip .chip-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
 
   /* ── Filter bar ── */
   .filter-bar {
     max-width: 1200px;
-    margin: 20px auto 0;
+    margin: 18px auto 0;
     padding: 0 24px;
     display: flex;
-    gap: 8px;
+    gap: 6px;
     flex-wrap: wrap;
   }
   .filter-btn {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
     padding: 6px 16px;
     border-radius: 20px;
     border: 1px solid var(--border);
     background: transparent;
     color: var(--text-muted);
-    font-size: 13px;
-    font-family: inherit;
     cursor: pointer;
-    transition: all 0.2s;
+    transition: all 0.2s ease;
   }
-  .filter-btn:hover { border-color: var(--accent-1); color: var(--text); }
-  .filter-btn.active { background: var(--accent-1); border-color: var(--accent-1); color: #fff; }
+  .filter-btn:hover { border-color: var(--blue); color: var(--text); }
+  .filter-btn.active { background: var(--red); border-color: var(--red); color: #fff; }
 
   /* ── Main ── */
   .main {
@@ -158,14 +212,10 @@
   .spotlight { margin-bottom: 32px; display: none; }
   .spotlight.has-spotlight { display: block; }
   .spotlight-title {
-    font-size: 13px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 1.2px;
-    margin-bottom: 12px;
     display: flex;
     align-items: center;
     gap: 8px;
+    margin-bottom: 12px;
   }
   .spotlight-title .dot {
     width: 8px; height: 8px;
@@ -174,7 +224,7 @@
   }
   @keyframes pulse-dot {
     0%, 100% { opacity: 1; transform: scale(1); }
-    50% { opacity: 0.5; transform: scale(1.3); }
+    50% { opacity: 0.5; transform: scale(1.4); }
   }
   .spotlight-card {
     border-radius: var(--radius);
@@ -183,25 +233,45 @@
     align-items: center;
     gap: 16px;
     flex-wrap: wrap;
+    position: relative;
+    overflow: hidden;
+  }
+  /* Ambient sweep on spotlight (signature animation) */
+  .spotlight-card::after {
+    content: '';
+    position: absolute;
+    top: 0; left: -100%;
+    width: 60%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(232,74,74,0.04), transparent);
+    animation: sweep 4s ease-in-out infinite;
+    pointer-events: none;
+  }
+  @keyframes sweep {
+    0%, 100% { left: -100%; }
+    50% { left: 150%; }
   }
   .spotlight-card .show-badge {
+    font-family: 'Figtree', sans-serif;
     font-size: 12px;
-    font-weight: 600;
-    padding: 3px 10px;
+    font-weight: 700;
+    padding: 2px 10px;
     border-radius: 6px;
     color: #000;
+    position: relative;
+    z-index: 1;
   }
-  .spotlight-card .ep-info { flex: 1; min-width: 200px; }
-  .spotlight-card .ep-title { font-size: 18px; font-weight: 700; }
+  .spotlight-card .ep-info { flex: 1; min-width: 200px; position: relative; z-index: 1; }
+  .spotlight-card .ep-title { font-family: 'Figtree', sans-serif; font-size: 20px; font-weight: 700; letter-spacing: -0.01em; }
   .spotlight-card .ep-meta { font-size: 13px; color: var(--text-muted); margin-top: 2px; }
-  .spotlight-card .ep-right { text-align: right; flex-shrink: 0; }
-  .spotlight-card .ep-time { font-size: 14px; font-weight: 600; white-space: nowrap; }
-  .spotlight-card .countdown { font-size: 13px; font-weight: 500; margin-top: 4px; font-variant-numeric: tabular-nums; }
+  .spotlight-card .ep-right { text-align: right; flex-shrink: 0; position: relative; z-index: 1; }
+  .spotlight-card .ep-time { font-family: 'JetBrains Mono', monospace; font-size: 15px; font-weight: 600; white-space: nowrap; }
+  .spotlight-card .countdown { font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 500; margin-top: 4px; opacity: 0.8; font-variant-numeric: tabular-nums; }
 
   /* ── Show Grid ── */
   .show-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
     gap: 20px;
   }
 
@@ -211,18 +281,13 @@
     border: 1px solid var(--border);
     border-radius: var(--radius);
     overflow: hidden;
-    transition: border-color 0.2s, box-shadow 0.2s;
+    transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
   }
   .show-card:hover {
-    border-color: var(--border);
-    box-shadow: 0 4px 24px rgba(0,0,0,0.3);
+    border-color: #2a2a40;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.5);
   }
-  .show-card.season-done {
-    opacity: 0.5;
-  }
-  .show-card.season-done .show-card-header {
-    opacity: 0.7;
-  }
+  .show-card.season-done { opacity: 0.5; }
 
   .show-card-header {
     padding: 20px 20px 14px;
@@ -231,51 +296,104 @@
     align-items: flex-start;
     gap: 12px;
   }
-  .show-card-header .show-info { flex: 1; }
   .show-card-header .show-name {
-    font-size: 20px;
+    font-family: 'Figtree', sans-serif;
+    font-size: 22px;
     font-weight: 700;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    flex-wrap: wrap;
+    letter-spacing: -0.02em;
   }
   .show-card-header .show-meta {
+    font-family: 'DM Sans', sans-serif;
     font-size: 13px;
     color: var(--text-muted);
     margin-top: 2px;
   }
-  .show-card-header .show-status {
-    font-size: 12px;
-    padding: 4px 12px;
+  .show-status {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 3px 12px;
     border-radius: 20px;
-    font-weight: 500;
     white-space: nowrap;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    flex-shrink: 0;
   }
-  .show-status.running { background: #22c55e22; color: var(--green); }
-  .show-status.done { background: #55557022; color: var(--text-dim); }
+  .show-status.running { background: #3a7bd522; color: var(--blue); border: 1px solid #3a7bd533; }
+  .show-status.done { background: #55506a22; color: var(--text-dim); border: 1px solid #55506a33; }
 
-  /* ── Countdown in header ── */
+  /* ── Countdown row with progress ring ── */
   .countdown-row {
-    padding: 0 20px 12px;
+    padding: 12px 20px;
     display: flex;
     align-items: center;
-    gap: 10px;
-    font-size: 13px;
+    gap: 14px;
     border-bottom: 1px solid var(--border-subtle);
   }
-  .countdown-row .next-label {
+  .cd-ring-wrap {
+    flex-shrink: 0;
+    position: relative;
+    width: 44px;
+    height: 44px;
+  }
+  .cd-ring-wrap svg {
+    width: 44px;
+    height: 44px;
+    transform: rotate(-90deg);
+  }
+  .cd-ring-wrap .ring-bg {
+    fill: none;
+    stroke: var(--border-subtle);
+    stroke-width: 3;
+  }
+  .cd-ring-wrap .ring-fg {
+    fill: none;
+    stroke: var(--blue);
+    stroke-width: 3;
+    stroke-linecap: round;
+    transition: stroke-dashoffset 0.5s ease;
+  }
+  .cd-ring-wrap .ring-fg.live { stroke: var(--red); }
+  .cd-ring-wrap .ring-fg.close { stroke: var(--amber); }
+  .cd-ring-wrap .cd-center {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .cd-ring-wrap .cd-center .bar {
+    width: 3px;
+    height: 14px;
+    border-radius: 2px;
+    background: var(--red);
+    opacity: 0.5;
+  }
+  .cd-ring-wrap .cd-center .bar:nth-child(1) { animation: bar-pulse 1.8s ease-in-out infinite; }
+  .cd-ring-wrap .cd-center .bar:nth-child(2) { animation: bar-pulse 1.8s ease-in-out 0.3s infinite; }
+  .cd-ring-wrap .cd-center .bar:nth-child(3) { animation: bar-pulse 1.8s ease-in-out 0.6s infinite; }
+  @keyframes bar-pulse {
+    0%, 100% { opacity: 0.3; height: 10px; }
+    50% { opacity: 1; height: 18px; }
+  }
+
+  .cd-details { flex: 1; min-width: 0; }
+  .cd-details .cd-label {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
     color: var(--text-muted);
     font-weight: 500;
   }
-  .countdown-row .next-ep {
-    color: var(--text);
-    font-weight: 600;
+  .cd-details .cd-ep {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
   }
-  .countdown-row .next-ep .finale-badge {
+  .cd-details .cd-ep .finale-badge {
+    font-family: 'Figtree', sans-serif;
     font-size: 10px;
     font-weight: 700;
     padding: 1px 6px;
@@ -283,45 +401,43 @@
     background: var(--amber);
     color: #000;
     margin-left: 6px;
-    vertical-align: middle;
   }
-  .countdown-row .timer {
-    margin-left: auto;
+  .cd-countdown {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: -0.03em;
     font-variant-numeric: tabular-nums;
-    font-weight: 600;
-    white-space: nowrap;
     flex-shrink: 0;
   }
-  .countdown-row .timer.green { color: var(--green); }
-  .countdown-row .timer.amber { color: var(--amber); }
-  .countdown-row .timer.dim { color: var(--text-dim); }
+  .cd-countdown.live { color: var(--red); }
+  .cd-countdown.close { color: var(--amber); }
+  .cd-countdown.far { color: var(--blue); }
 
-  /* ── Progress ── */
-  .progress-wrap {
-    padding: 12px 20px 0;
-  }
+  /* ── Progress bar ── */
+  .progress-wrap { padding: 12px 20px 0; }
   .progress-bar {
-    height: 4px;
+    height: 3px;
     background: var(--border-subtle);
     border-radius: 2px;
     overflow: hidden;
-    position: relative;
   }
   .progress-fill {
     height: 100%;
     border-radius: 2px;
     transition: width 0.6s ease;
   }
-  .progress-fill.show-1 { background: linear-gradient(90deg, var(--accent-1), var(--accent-2)); }
-  .progress-fill.show-2 { background: linear-gradient(90deg, var(--accent-3), var(--green)); }
+  .progress-fill.show-1 { background: linear-gradient(90deg, var(--red), var(--blue)); }
+  .progress-fill.show-2 { background: linear-gradient(90deg, var(--blue), var(--amber)); }
   .progress-fill.show-3 { background: linear-gradient(90deg, var(--amber), var(--red)); }
   .progress-label {
     display: flex;
     justify-content: space-between;
-    font-size: 11px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
     color: var(--text-dim);
-    margin-top: 4px;
-    padding-bottom: 12px;
+    margin-top: 3px;
+    padding-bottom: 10px;
     border-bottom: 1px solid var(--border-subtle);
   }
 
@@ -330,8 +446,8 @@
   .ep-item {
     display: flex;
     align-items: center;
-    gap: 12px;
-    padding: 8px 8px;
+    gap: 10px;
+    padding: 7px 8px;
     border-bottom: 1px solid var(--border-subtle);
     cursor: pointer;
     transition: background 0.15s, opacity 0.3s;
@@ -339,48 +455,33 @@
   }
   .ep-item:last-child { border-bottom: none; }
   .ep-item:hover { background: rgba(255,255,255,0.02); }
-  .ep-item.past {
-    opacity: 0.45;
-  }
-  .ep-item.past:hover {
-    opacity: 0.65;
-    background: rgba(255,255,255,0.01);
-  }
-  .ep-item.past .ep-name {
-    color: var(--text-dim);
-  }
-  .ep-item.past .ep-date {
-    color: var(--text-dim);
-    opacity: 0.6;
-  }
-  .ep-item.past .ep-number {
-    color: var(--text-dim);
-    opacity: 0.4;
-  }
+  .ep-item.past { opacity: 0.4; }
+  .ep-item.past:hover { opacity: 0.6; }
   .ep-item.next-up {
-    background: rgba(255,255,255,0.02);
-    border: 1px solid var(--border);
+    background: rgba(58,123,213,0.03);
+    border: 1px solid #3a7bd522;
     margin: -1px 0 4px;
-    padding: 10px 8px;
+    padding: 9px 8px;
     border-radius: 8px;
     position: relative;
   }
   .ep-item.next-up::before {
     content: 'NEXT';
+    font-family: 'JetBrains Mono', monospace;
     position: absolute;
     top: -8px;
     left: 12px;
-    font-size: 9px;
+    font-size: 8px;
     font-weight: 700;
-    letter-spacing: 0.8px;
+    letter-spacing: 0.08em;
     padding: 0 6px;
     border-radius: 3px;
     background: var(--bg-card);
-    color: var(--accent-1);
+    color: var(--blue);
   }
 
   .ep-dot {
-    width: 10px; height: 10px;
+    width: 8px; height: 8px;
     border-radius: 50%;
     flex-shrink: 0;
     position: relative;
@@ -393,19 +494,20 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 9px;
+    font-size: 8px;
     font-weight: 800;
     color: var(--text-dim);
   }
-  .ep-dot.today {
-    background: var(--green);
-    box-shadow: 0 0 8px var(--green);
+  .ep-dot.today { background: var(--red); box-shadow: 0 0 8px var(--red); }
+  .ep-dot.today::after {
+    content: '';
+    position: absolute;
+    inset: -3px;
+    border-radius: 50%;
+    border: 2px solid var(--red);
+    animation: ring-pulse 1.5s ease-in-out infinite;
   }
-  .ep-dot.upcoming { background: var(--border); border: 2px solid var(--text-dim); }
-  .ep-dot.tomorrow {
-    background: var(--amber);
-    box-shadow: 0 0 8px var(--amber);
-  }
+  .ep-dot.tomorrow { background: var(--amber); box-shadow: 0 0 8px var(--amber); }
   .ep-dot.tomorrow::after {
     content: '';
     position: absolute;
@@ -414,21 +516,15 @@
     border: 2px solid var(--amber);
     animation: pulse-dot 1.5s ease-in-out infinite;
   }
-  .ep-dot.today::after {
-    content: '';
-    position: absolute;
-    inset: -3px;
-    border-radius: 50%;
-    border: 2px solid var(--green);
-    animation: ring-pulse 1.5s ease-in-out infinite;
-  }
+  .ep-dot.upcoming { background: var(--border); border: 2px solid var(--text-dim); }
   @keyframes ring-pulse {
     0%, 100% { opacity: 0.6; transform: scale(1); }
     50% { opacity: 0.2; transform: scale(1.4); }
   }
 
   .ep-number {
-    font-size: 12px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
     font-weight: 600;
     color: var(--text-dim);
     min-width: 44px;
@@ -436,15 +532,17 @@
   }
   .ep-details { flex: 1; min-width: 0; }
   .ep-name {
+    font-family: 'DM Sans', sans-serif;
     font-size: 14px;
     font-weight: 500;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
   }
-  .ep-name.today-ep { color: var(--green); }
+  .ep-name.today-ep { color: var(--red); font-weight: 600; }
   .ep-name.tomorrow-ep { color: var(--amber); }
   .ep-name .finale-tag {
+    font-family: 'Figtree', sans-serif;
     font-size: 10px;
     font-weight: 700;
     padding: 1px 6px;
@@ -455,22 +553,24 @@
     vertical-align: middle;
   }
   .ep-date {
+    font-family: 'DM Sans', sans-serif;
     font-size: 12px;
     color: var(--text-dim);
     margin-top: 1px;
   }
   .ep-date strong { color: var(--text-muted); font-weight: 500; }
   .ep-time-badge {
-    font-size: 11px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
     padding: 3px 8px;
-    border-radius: 6px;
+    border-radius: 5px;
     background: var(--border-subtle);
     color: var(--text-muted);
     white-space: nowrap;
     flex-shrink: 0;
   }
-  .ep-time-badge.today-badge { background: #22c55e22; color: var(--green); font-weight: 600; }
-  .ep-time-badge.tomorrow-badge { background: #f59e0b22; color: var(--amber); font-weight: 600; }
+  .ep-time-badge.today-badge { background: #e84a4a22; color: var(--red); font-weight: 700; }
+  .ep-time-badge.tomorrow-badge { background: #e89a3a22; color: var(--amber); font-weight: 700; }
 
   /* ── Empty state ── */
   .empty-state {
@@ -479,24 +579,26 @@
     color: var(--text-dim);
   }
   .empty-state .icon { font-size: 48px; margin-bottom: 12px; }
-  .empty-state .msg { font-size: 15px; }
+  .empty-state .msg { font-family: 'DM Sans', sans-serif; font-size: 15px; }
 
   /* ── Footer ── */
   .footer {
     text-align: center;
     padding: 24px;
+    font-family: 'DM Sans', sans-serif;
     font-size: 12px;
     color: var(--text-dim);
     border-top: 1px solid var(--border-subtle);
     max-width: 1200px;
     margin: 0 auto;
   }
-  .footer a { color: var(--accent-1); text-decoration: none; }
+  .footer a { color: var(--blue); text-decoration: none; }
+  .footer a:hover { text-decoration: underline; }
 
   /* ── Responsive ── */
   @media (max-width: 640px) {
-    .header { padding: 20px 16px 16px; }
-    .header-title { font-size: 22px; }
+    .header { padding: 20px 16px 14px; }
+    .hdg-xl { font-size: 22px; }
     .header-top { flex-direction: column; }
     .header-time { text-align: left; }
     .main { padding: 16px; }
@@ -504,23 +606,33 @@
     .spotlight-card { flex-direction: column; align-items: flex-start; }
     .ep-item { flex-wrap: wrap; }
     .countdown-row { flex-wrap: wrap; }
-    .countdown-row .timer { margin-left: 0; }
+    .cd-ring-wrap { width: 36px; height: 36px; }
+    .cd-ring-wrap svg { width: 36px; height: 36px; }
+    .cd-countdown { font-size: 14px; }
     .season-row { padding: 0 16px; }
   }
 </style>
 </head>
 <body>
 
-<!-- ═══ Header ═══ -->
+<!-- ═══ Header with signal bars ═══ -->
 <header class="header">
   <div class="header-content">
     <div class="header-top">
       <div>
-        <h1 class="header-title">TV Shows Tracker</h1>
-        <p class="header-subtitle">Episode release dashboard — times in your local timezone</p>
+        <h1 class="header-title hdg-xl">
+          <span class="accent-red">TV</span> Shows
+          <span class="accent-amber">Track</span><span class="accent-blue">er</span>
+        </h1>
+        <p class="header-subtitle">Episode release dashboard — all times in your local timezone</p>
+        <div class="signal-bars">
+          <span class="signal-bar"></span>
+          <span class="signal-bar"></span>
+          <span class="signal-bar"></span>
+        </div>
       </div>
       <div class="header-time">
-        <div class="time" id="local-time">--:--</div>
+        <div class="time" id="local-time">--:--:--</div>
         <div class="tz" id="local-tz">Loading...</div>
         <div class="date" id="local-date">---</div>
       </div>
@@ -545,13 +657,15 @@
 </main>
 
 <footer class="footer">
-  <p>Data sourced from Wikipedia &amp; TVMaze • Updated <span id="update-date">---</span></p>
+  <a href="https://github.com/hermey-bot/tv-shows-tracker" target="_blank" rel="noopener">GitHub</a>
+  · Data from Wikipedia &amp; TVMaze
+  · Updated <span id="update-date">---</span>
 </footer>
 
 <script>
 // ── Data ──────────────────────────────────────────────────────────
-// Show times are stored in their original US timezones.
-// The browser auto-converts everything to YOUR local timezone.
+
+const C = 2 * Math.PI * 14; // SVG ring circumference (r=14)
 
 const TZ_OFFSETS = {
   'America/New_York': -4,
@@ -694,7 +808,6 @@ function formatTimezone() {
   return `${tz} (GMT${sign}${hrs}:${String(mins).padStart(2, '0')})`;
 }
 
-/** Get the next upcoming episode for a show (or null if all past) */
 function getNextEpisode(show) {
   for (const ep of show.schedule) {
     const cls = classifyDate(ep.date, show.timezone, show.releaseHour, show.releaseMinute);
@@ -703,7 +816,16 @@ function getNextEpisode(show) {
   return null;
 }
 
-/** Get the countdown in ms, days, hours, minutes, seconds */
+function getPrevEpisode(show) {
+  let prev = null;
+  for (const ep of show.schedule) {
+    const cls = classifyDate(ep.date, show.timezone, show.releaseHour, show.releaseMinute);
+    if (cls === 'past') prev = ep;
+    else break;
+  }
+  return prev;
+}
+
 function getCountdown(episodeTimestampMs) {
   const diff = episodeTimestampMs - Date.now();
   if (diff <= 0) return { total: 0, d: 0, h: 0, m: 0, s: 0 };
@@ -715,18 +837,25 @@ function getCountdown(episodeTimestampMs) {
   return { total, d, h, m, s };
 }
 
-function formatCountdown(cd) {
-  if (cd.total <= 0) return 'Airing now!';
-  if (cd.d > 0) return `${cd.d}d ${cd.h}h`;
-  if (cd.h > 0) return `${cd.h}h ${cd.m}m`;
-  return `${cd.m}m ${cd.s}s`;
-}
-
 function formatCountdownFull(cd) {
-  if (cd.total <= 0) return 'Airing now!';
+  if (cd.total <= 0) return 'Now';
   if (cd.d > 0) return `${cd.d}d ${cd.h}h ${cd.m}m`;
   if (cd.h > 0) return `${cd.h}h ${cd.m}m ${cd.s}s`;
   return `${cd.m}m ${cd.s}s`;
+}
+
+function getRingProgress(show) {
+  const next = getNextEpisode(show);
+  const prev = getPrevEpisode(show);
+  if (!next) return 1; // season done
+  if (!prev) return 0; // no previous episode yet
+  const nextTs = episodeTimestamp(next.date, show.timezone, show.releaseHour, show.releaseMinute);
+  const prevTs = episodeTimestamp(prev.date, show.timezone, show.releaseHour, show.releaseMinute);
+  const now = Date.now();
+  const total = nextTs - prevTs;
+  const elapsed = now - prevTs;
+  if (total <= 0) return 1;
+  return Math.min(1, Math.max(0, elapsed / total));
 }
 
 // ── Render Functions ──
@@ -736,50 +865,57 @@ function renderSeasonChips() {
   let html = '';
   for (const show of SHOWS) {
     const next = getNextEpisode(show);
+    let color = 'var(--text-dim)';
+    let label;
     if (!next) {
-      html += `<div class="season-chip"><span class="num">${show.name}</span> <span class="label">— Season Complete</span></div>`;
+      color = 'var(--text-dim)';
+      label = 'Season Complete';
+    } else {
+      const cls = classifyDate(next.date, show.timezone, show.releaseHour, show.releaseMinute);
+      if (cls === 'today') { color = 'var(--red)'; label = 'Airing Today'; }
+      else if (cls === 'tomorrow') { color = 'var(--amber)'; label = 'Tomorrow'; }
+      else { color = 'var(--blue)'; label = `Next ${next.ep}`; }
+      const ts = episodeTimestamp(next.date, show.timezone, show.releaseHour, show.releaseMinute);
+      const cd = getCountdown(ts);
+      html += `<div class="season-chip"><span class="chip-dot" style="background:${color}"></span><span class="num">${show.name}</span> <span>${label} · </span><span class="num" id="chip-${show.id}">${cd.d > 0 ? cd.d+'d '+cd.h+'h' : cd.h > 0 ? cd.h+'h '+cd.m+'m' : cd.m+'m'}</span></div>`;
       continue;
     }
-    const ts = episodeTimestamp(next.date, show.timezone, show.releaseHour, show.releaseMinute);
-    const cd = getCountdown(ts);
-    html += `<div class="season-chip"><span class="num">${show.name}</span> <span class="label">· Next ${next.ep} in</span> <span class="num" id="chip-${show.id}">${formatCountdown(cd)}</span></div>`;
+    html += `<div class="season-chip"><span class="chip-dot" style="background:${color}"></span><span class="num">${show.name}</span><span> — ${label}</span></div>`;
   }
   row.innerHTML = html;
 }
 
 function renderSpotlight(todayEps, tomorrowEps) {
   const el = document.getElementById('spotlight');
-
   if (todayEps.length > 0) {
     const ep = todayEps[0];
     const ts = episodeTimestamp(ep.date, ep.timezone, ep.hour, ep.minute);
     const cd = getCountdown(ts);
     el.classList.add('has-spotlight');
     el.innerHTML = `
-      <div class="spotlight-title" style="color:var(--green);"><span class="dot" style="background:var(--green);box-shadow:0 0 8px var(--green);"></span> Airing Today</div>
-      <div class="spotlight-card" style="background:linear-gradient(135deg,#22c55e0d,#22c55e05);border-color:#22c55e33;">
-        <span class="show-badge" style="background:var(--green);">${ep.showName}</span>
+      <div class="spotlight-title hdg-sm" style="color:var(--red);"><span class="dot" style="background:var(--red);box-shadow:0 0 8px var(--red);"></span>Airing Today</div>
+      <div class="spotlight-card" style="background:linear-gradient(135deg,#e84a4a0d,#e84a4a05);border:1px solid #e84a4a33;">
+        <span class="show-badge" style="background:var(--red);">${ep.showName}</span>
         <div class="ep-info">
           <div class="ep-title">${ep.ep} — ${ep.title}</div>
           <div class="ep-meta">${ep.platform} · ${formatDate(ep.date)}</div>
         </div>
         <div class="ep-right">
-          <div class="ep-time" style="color:var(--green);">${formatLocalTime(ep.date, ep.timezone, ep.hour, ep.minute)}</div>
-          <div class="countdown" style="color:var(--green);opacity:0.7;" id="spl-cd">${formatCountdown(cd)}</div>
+          <div class="ep-time" style="color:var(--red);">${formatLocalTime(ep.date, ep.timezone, ep.hour, ep.minute)}</div>
+          <div class="countdown" style="color:var(--red);" id="spl-cd">${formatCountdownFull(cd)}</div>
         </div>
       </div>
     `;
     return;
   }
-
   if (tomorrowEps.length > 0) {
     const ep = tomorrowEps[0];
     const ts = episodeTimestamp(ep.date, ep.timezone, ep.hour, ep.minute);
     const cd = getCountdown(ts);
     el.classList.add('has-spotlight');
     el.innerHTML = `
-      <div class="spotlight-title" style="color:var(--amber);"><span class="dot" style="background:var(--amber);box-shadow:0 0 8px var(--amber);"></span> Next Up — Tomorrow</div>
-      <div class="spotlight-card" style="background:linear-gradient(135deg,#f59e0b0d,#f59e0b05);border-color:#f59e0b33;">
+      <div class="spotlight-title hdg-sm" style="color:var(--amber);"><span class="dot" style="background:var(--amber);box-shadow:0 0 8px var(--amber);"></span>Next Up — Tomorrow</div>
+      <div class="spotlight-card" style="background:linear-gradient(135deg,#e89a3a0d,#e89a3a05);border:1px solid #e89a3a33;">
         <span class="show-badge" style="background:var(--amber);color:#000;">${ep.showName}</span>
         <div class="ep-info">
           <div class="ep-title">${ep.ep} — ${ep.title}</div>
@@ -787,15 +923,38 @@ function renderSpotlight(todayEps, tomorrowEps) {
         </div>
         <div class="ep-right">
           <div class="ep-time" style="color:var(--amber);">${formatLocalTime(ep.date, ep.timezone, ep.hour, ep.minute)}</div>
-          <div class="countdown" style="color:var(--amber);opacity:0.7;" id="spl-cd">${formatCountdown(cd)}</div>
+          <div class="countdown" style="color:var(--amber);" id="spl-cd">${formatCountdownFull(cd)}</div>
         </div>
       </div>
     `;
     return;
   }
-
   el.classList.remove('has-spotlight');
   el.innerHTML = '';
+}
+
+function renderRingProgress(show) {
+  const pct = getRingProgress(show);
+  const off = C * (1 - Math.min(1, Math.max(0, pct)));
+  const next = getNextEpisode(show);
+  let cls = 'ring-fg';
+  if (!next) cls = 'ring-bg';
+  else {
+    const cls2 = classifyDate(next.date, show.timezone, show.releaseHour, show.releaseMinute);
+    if (cls2 === 'today') cls += ' live';
+    else if (pct > 0.7) cls += ' close';
+  }
+  return `<div class="cd-ring-wrap">
+    <svg viewBox="0 0 36 36">
+      <circle class="ring-bg" cx="18" cy="18" r="14"/>
+      <circle class="${cls}" cx="18" cy="18" r="14" stroke-dasharray="${C}" stroke-dashoffset="${off}"/>
+    </svg>
+    <div class="cd-center">
+      <div class="bar"></div>
+      <div class="bar"></div>
+      <div class="bar"></div>
+    </div>
+  </div>`;
 }
 
 function renderShowCard(show) {
@@ -806,18 +965,22 @@ function renderShowCard(show) {
   const allPast = !next;
   const isFinale = next && next.ep === show.schedule[show.schedule.length - 1].ep;
 
-  // Countdown
+  // Countdown row
   let cdHtml = '';
   if (next) {
     const ts = episodeTimestamp(next.date, show.timezone, show.releaseHour, show.releaseMinute);
     const cd = getCountdown(ts);
-    const finaleTag = isFinale ? '<span class="finale-badge">🏁 FINALE</span>' : '';
-    const timerCls = cd.d === 0 && cd.h < 6 ? 'amber' : 'green';
+    const cls = classifyDate(next.date, show.timezone, show.releaseHour, show.releaseMinute);
+    const cdCls = cls === 'today' ? 'live' : cd.d === 0 && cd.h < 6 ? 'close' : 'far';
+    const finaleTag = isFinale ? '<span class="finale-badge">🏁 Finale</span>' : '';
     cdHtml = `
       <div class="countdown-row">
-        <span class="next-label">Next:</span>
-        <span class="next-ep">${next.ep} — ${next.title}${finaleTag}</span>
-        <span class="timer ${timerCls}" id="cd-${show.id}">${formatCountdownFull(cd)}</span>
+        ${renderRingProgress(show)}
+        <div class="cd-details">
+          <div class="cd-label">Next episode</div>
+          <div class="cd-ep">${next.ep} — ${next.title}${finaleTag}</div>
+        </div>
+        <div class="cd-countdown ${cdCls}" id="cd-${show.id}">${formatCountdownFull(cd)}</div>
       </div>`;
   }
 
@@ -831,18 +994,19 @@ function renderShowCard(show) {
     const cls = classifyDate(ep.date, show.timezone, show.releaseHour, show.releaseMinute);
     const localTime = formatLocalTime(ep.date, show.timezone, show.releaseHour, show.releaseMinute);
     const dateDisplay = formatDate(ep.date);
+    const isNext = next && ep.ep === next.ep;
+    const isFinaleEp = idx === show.schedule.length - 1;
 
-    // Pin the next-up episode at the top of the list
-    if (cls !== 'past' && !hasPinnedNext && next && ep.ep === next.ep) {
+    if (cls !== 'past' && !hasPinnedNext && isNext) {
       hasPinnedNext = true;
       const epNameCls = cls === 'today' ? 'today-ep' : cls === 'tomorrow' ? 'tomorrow-ep' : '';
       let badge;
       if (cls === 'today') badge = '<span class="ep-time-badge today-badge">TODAY</span>';
       else if (cls === 'tomorrow') badge = '<span class="ep-time-badge tomorrow-badge">TOMORROW</span>';
       else badge = `<span class="ep-time-badge">${localTime}</span>`;
-      const finaleTag = isFinale ? '<span class="finale-tag">🏁 Finale</span>' : '';
+      const finaleTag = isFinaleEp ? '<span class="finale-tag">🏁 Finale</span>' : '';
       itemsHtml += `
-        <div class="ep-item next-up ${cls === 'past' ? 'past' : ''}">
+        <div class="ep-item next-up">
           <span class="ep-dot ${cls}"></span>
           <span class="ep-number">${ep.ep}</span>
           <div class="ep-details">
@@ -854,14 +1018,13 @@ function renderShowCard(show) {
       return;
     }
 
-    // Regular episode rows
     const epNameCls = cls === 'today' ? 'today-ep' : cls === 'tomorrow' ? 'tomorrow-ep' : '';
     let badge;
     if (cls === 'today') badge = '<span class="ep-time-badge today-badge">TODAY</span>';
     else if (cls === 'tomorrow') badge = '<span class="ep-time-badge tomorrow-badge">TOMORROW</span>';
     else if (cls === 'past') badge = '<span class="ep-time-badge">Aired</span>';
     else badge = `<span class="ep-time-badge">${localTime}</span>`;
-    const finaleTag = (idx === show.schedule.length - 1 && cls === 'upcoming') ? '<span class="finale-tag">🏁 Finale</span>' : '';
+    const finaleTag = isFinaleEp && cls !== 'past' ? '<span class="finale-tag">🏁 Finale</span>' : '';
 
     itemsHtml += `
       <div class="ep-item ${cls === 'past' ? 'past' : ''}">
@@ -878,7 +1041,7 @@ function renderShowCard(show) {
   return `
     <div class="show-card ${allPast ? 'season-done' : ''}" data-show="${show.id}">
       <div class="show-card-header" style="background: var(--gradient-${show.gradient});">
-        <div class="show-info">
+        <div>
           <div class="show-name">${show.name}</div>
           <div class="show-meta">${show.season} · ${show.platform} · ${total} episodes</div>
         </div>
@@ -891,7 +1054,7 @@ function renderShowCard(show) {
         </div>
         <div class="progress-label">
           <span>${pastCount} aired</span>
-          <span>${total - pastCount} remaining</span>
+          <span>${total - pastCount} left</span>
         </div>
       </div>
       <div class="ep-list">${itemsHtml}</div>
@@ -924,9 +1087,8 @@ function renderAll(filter) {
 
   renderSeasonChips();
   renderSpotlight(todayEps, tomorrowEps);
-  grid.innerHTML = html || `<div class="empty-state"><div class="icon">📭</div><div class="msg">No episodes match this filter.</div></div>`;
+  grid.innerHTML = html || `<div class="empty-state"><div class="icon">📭</div><div class="msg body-md">No episodes match this filter.</div></div>`;
 
-  // Start ticking countdowns
   tickCountdowns();
 }
 
@@ -938,46 +1100,54 @@ function tickCountdowns() {
   if (tickInterval) clearInterval(tickInterval);
 
   function tick() {
-    // Update spotlight countdown
+    // Spotlight
     const splCd = document.getElementById('spl-cd');
     if (splCd) {
       const spotEl = document.getElementById('spotlight');
       if (spotEl && spotEl.classList.contains('has-spotlight')) {
-        const card = spotEl.querySelector('.spotlight-card');
-        // Recalculate from the first today/tomorrow episode
-        const todayEps = [];
-        const tomorrowEps = [];
-        SHOWS.forEach(show => {
-          show.schedule.forEach(ep => {
-            const cls = classifyDate(ep.date, show.timezone, show.releaseHour, show.releaseMinute);
-            const data = { ...ep, timezone: show.timezone, hour: show.releaseHour, minute: show.releaseMinute };
-            if (cls === 'today') todayEps.push(data);
-            else if (cls === 'tomorrow') tomorrowEps.push(data);
-          });
-        });
-        const ep = todayEps.length > 0 ? todayEps[0] : tomorrowEps.length > 0 ? tomorrowEps[0] : null;
+        const te = []; const tme = [];
+        SHOWS.forEach(s => s.schedule.forEach(ep => {
+          const c = classifyDate(ep.date, s.timezone, s.releaseHour, s.releaseMinute);
+          const d = { ...ep, timezone: s.timezone, hour: s.releaseHour, minute: s.releaseMinute };
+          if (c === 'today') te.push(d);
+          else if (c === 'tomorrow') tme.push(d);
+        }));
+        const ep = te.length > 0 ? te[0] : tme.length > 0 ? tme[0] : null;
         if (ep) {
           const ts = episodeTimestamp(ep.date, ep.timezone, ep.hour, ep.minute);
-          const cd = getCountdown(ts);
-          splCd.textContent = formatCountdown(cd);
+          splCd.textContent = formatCountdownFull(getCountdown(ts));
         }
       }
     }
 
-    // Update each show's countdown
+    // Show countdowns + rings
     SHOWS.forEach(show => {
+      const next = getNextEpisode(show);
       const el = document.getElementById(`cd-${show.id}`);
       if (!el) return;
-      const next = getNextEpisode(show);
-      if (!next) { el.textContent = 'Season done'; return; }
+      if (!next) { el.textContent = '—'; return; }
       const ts = episodeTimestamp(next.date, show.timezone, show.releaseHour, show.releaseMinute);
       const cd = getCountdown(ts);
       el.textContent = formatCountdownFull(cd);
-      // Color
-      el.className = `timer ${cd.d === 0 && cd.h < 6 ? 'amber' : 'green'}`;
+
+      // Update ring animation
+      const ringWrap = el.closest('.countdown-row')?.querySelector('.cd-ring-wrap');
+      if (ringWrap) {
+        const pct = getRingProgress(show);
+        const off = C * (1 - Math.min(1, Math.max(0, pct)));
+        const circle = ringWrap.querySelector('.ring-fg');
+        if (circle) {
+          circle.setAttribute('stroke-dashoffset', off);
+          // Update class
+          const cls2 = classifyDate(next.date, show.timezone, show.releaseHour, show.releaseMinute);
+          circle.className = 'ring-fg';
+          if (cls2 === 'today') circle.classList.add('live');
+          else if (pct > 0.7) circle.classList.add('close');
+        }
+      }
     });
 
-    // Update chips
+    // Chips
     SHOWS.forEach(show => {
       const chip = document.getElementById(`chip-${show.id}`);
       if (!chip) return;
@@ -985,7 +1155,7 @@ function tickCountdowns() {
       if (!next) return;
       const ts = episodeTimestamp(next.date, show.timezone, show.releaseHour, show.releaseMinute);
       const cd = getCountdown(ts);
-      chip.textContent = formatCountdown(cd);
+      chip.textContent = cd.d > 0 ? cd.d+'d '+cd.h+'h' : cd.h > 0 ? cd.h+'h '+cd.m+'m' : cd.m+'m';
     });
   }
 
@@ -1003,11 +1173,21 @@ function updateClock() {
     now.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
 }
 
+// ── Signal bars animation ──
+
+function tickSignalBars() {
+  const bars = document.querySelectorAll('.signal-bar');
+  bars.forEach((bar, i) => {
+    const heights = [12 + Math.random() * 12, 18 + Math.random() * 16, 24 + Math.random() * 18];
+    bar.style.height = heights[i] + 'px';
+  });
+}
+
 // ── Init ──
 
 document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('update-date').textContent = new Date().toLocaleDateString('en-US', {
-    month: 'short', day: 'numeric', year: 'numeric'
+    month: 'short', day: 'numeric', year: 'numeric',
   });
   document.getElementById('local-tz').textContent = formatTimezone();
 
@@ -1028,6 +1208,10 @@ document.addEventListener('DOMContentLoaded', () => {
   // Clock
   updateClock();
   setInterval(updateClock, 1000);
+
+  // Signal bars ambient animation
+  tickSignalBars();
+  setInterval(tickSignalBars, 800);
 });
 </script>
 </body>
