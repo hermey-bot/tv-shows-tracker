@@ -4,8 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>TV Shows Tracker — Episode Release Dashboard</title>
-
-<!-- Type: Figtree (display), DM Sans (body), JetBrains Mono (data) -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300..800;1,9..40,300..800&family=Figtree:ital,wght@0,300..900;1,300..900&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap" rel="stylesheet">
@@ -22,15 +20,9 @@
     --text:          #ece8e0;
     --text-muted:    #8a8694;
     --text-dim:      #55506a;
-    --red:           #e84a4a;    /* live / now airing — broadcast red */
-    --amber:         #e89a3a;    /* tomorrow / countdown <6h */
-    --blue:          #3a7bd5;    /* streaming / accent */
-    --gradient-header: linear-gradient(135deg, #140808 0%, #0a0a18 50%, #08080c 100%);
-    --gradient-1:    linear-gradient(135deg, #e84a4a11, #3a7bd511);
-    --gradient-2:    linear-gradient(135deg, #3a7bd511, #e89a3a11);
-    --gradient-3:    linear-gradient(135deg, #e89a3a11, #e84a4a11);
-    --radius:        12px;
-    --radius-sm:     8px;
+    --red:           #e84a4a;
+    --amber:         #e89a3a;
+    --blue:          #3a7bd5;
   }
 
   body {
@@ -41,26 +33,9 @@
     line-height: 1.5;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    position: relative;
     overflow-x: hidden;
   }
-  /* Subtle scanline overlay */
-  body::after {
-    content: '';
-    position: fixed;
-    inset: 0;
-    pointer-events: none;
-    z-index: 999;
-    background: repeating-linear-gradient(
-      0deg,
-      transparent,
-      transparent 2px,
-      rgba(0,0,0,0.03) 2px,
-      rgba(0,0,0,0.03) 4px
-    );
-  }
 
-  /* ── Typography scale ── */
   .hdg-xl { font-family: 'Figtree', sans-serif; font-weight: 700; font-size: 28px; letter-spacing: -0.03em; line-height: 1.2; }
   .hdg-lg { font-family: 'Figtree', sans-serif; font-weight: 700; font-size: 22px; letter-spacing: -0.02em; line-height: 1.25; }
   .hdg-md { font-family: 'Figtree', sans-serif; font-weight: 600; font-size: 16px; letter-spacing: -0.01em; }
@@ -73,9 +48,9 @@
 
   /* ── Header ── */
   .header {
-    background: var(--gradient-header);
+    background: var(--bg);
     border-bottom: 1px solid var(--border);
-    padding: 28px 24px 20px;
+    padding: 24px 24px 18px;
     position: relative;
     overflow: hidden;
   }
@@ -83,7 +58,7 @@
     content: '';
     position: absolute;
     inset: 0;
-    background: radial-gradient(ellipse 700px 250px at 50% -120px, #e84a4a22, transparent 70%);
+    background: radial-gradient(ellipse 700px 200px at 50% -120px, #e84a4a15, transparent 60%);
     pointer-events: none;
   }
   .header-content {
@@ -99,33 +74,14 @@
     flex-wrap: wrap;
     gap: 12px;
   }
-
-  /* Signal bars — signature broadcast element */
-  .signal-bars {
-    display: flex;
-    align-items: flex-end;
-    gap: 4px;
-    margin-top: 10px;
-  }
-  .signal-bar {
-    width: 3px;
-    border-radius: 2px;
-    background: currentColor;
-    transition: height 0.4s ease;
-  }
-  .signal-bar:nth-child(1) { height: 12px; color: var(--red); }
-  .signal-bar:nth-child(2) { height: 20px; color: var(--amber); }
-  .signal-bar:nth-child(3) { height: 28px; color: var(--blue); }
-
-  .header-title { color: var(--text); }
+  .header-left { display: flex; flex-direction: column; }
   .header-title .accent-red { color: var(--red); }
   .header-title .accent-amber { color: var(--amber); }
   .header-title .accent-blue { color: var(--blue); }
   .header-subtitle {
-    font-family: 'DM Sans', sans-serif;
     font-size: 13px;
     color: var(--text-muted);
-    margin-top: 4px;
+    margin-top: 3px;
   }
   .header-time { text-align: right; }
   .header-time .time {
@@ -150,7 +106,7 @@
   /* ── Season chips ── */
   .season-row {
     max-width: 1200px;
-    margin: 18px auto 0;
+    margin: 16px auto 0;
     padding: 0 24px;
     display: flex;
     gap: 10px;
@@ -167,8 +123,6 @@
     background: var(--bg-card);
     border: 1px solid var(--border);
     color: var(--text-muted);
-    position: relative;
-    overflow: hidden;
   }
   .season-chip .num { font-weight: 700; color: var(--text); }
   .season-chip .chip-dot {
@@ -180,14 +134,13 @@
   /* ── Filter bar ── */
   .filter-bar {
     max-width: 1200px;
-    margin: 18px auto 0;
+    margin: 16px auto 0;
     padding: 0 24px;
     display: flex;
     gap: 6px;
     flex-wrap: wrap;
   }
   .filter-btn {
-    font-family: 'DM Sans', sans-serif;
     font-size: 13px;
     font-weight: 500;
     padding: 6px 16px;
@@ -209,13 +162,13 @@
   }
 
   /* ── Spotlight ── */
-  .spotlight { margin-bottom: 32px; display: none; }
+  .spotlight { margin-bottom: 28px; display: none; }
   .spotlight.has-spotlight { display: block; }
   .spotlight-title {
     display: flex;
     align-items: center;
     gap: 8px;
-    margin-bottom: 12px;
+    margin-bottom: 10px;
   }
   .spotlight-title .dot {
     width: 8px; height: 8px;
@@ -227,29 +180,14 @@
     50% { opacity: 0.5; transform: scale(1.4); }
   }
   .spotlight-card {
-    border-radius: var(--radius);
-    padding: 20px 24px;
+    border-radius: 12px;
+    padding: 18px 22px;
     display: flex;
     align-items: center;
     gap: 16px;
     flex-wrap: wrap;
     position: relative;
     overflow: hidden;
-  }
-  /* Ambient sweep on spotlight (signature animation) */
-  .spotlight-card::after {
-    content: '';
-    position: absolute;
-    top: 0; left: -100%;
-    width: 60%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(232,74,74,0.04), transparent);
-    animation: sweep 4s ease-in-out infinite;
-    pointer-events: none;
-  }
-  @keyframes sweep {
-    0%, 100% { left: -100%; }
-    50% { left: 150%; }
   }
   .spotlight-card .show-badge {
     font-family: 'Figtree', sans-serif;
@@ -258,13 +196,11 @@
     padding: 2px 10px;
     border-radius: 6px;
     color: #000;
-    position: relative;
-    z-index: 1;
   }
-  .spotlight-card .ep-info { flex: 1; min-width: 200px; position: relative; z-index: 1; }
-  .spotlight-card .ep-title { font-family: 'Figtree', sans-serif; font-size: 20px; font-weight: 700; letter-spacing: -0.01em; }
+  .spotlight-card .ep-info { flex: 1; min-width: 200px; }
+  .spotlight-card .ep-title { font-size: 20px; font-weight: 700; font-family: 'Figtree', sans-serif; letter-spacing: -0.01em; }
   .spotlight-card .ep-meta { font-size: 13px; color: var(--text-muted); margin-top: 2px; }
-  .spotlight-card .ep-right { text-align: right; flex-shrink: 0; position: relative; z-index: 1; }
+  .spotlight-card .ep-right { text-align: right; flex-shrink: 0; }
   .spotlight-card .ep-time { font-family: 'JetBrains Mono', monospace; font-size: 15px; font-weight: 600; white-space: nowrap; }
   .spotlight-card .countdown { font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 500; margin-top: 4px; opacity: 0.8; font-variant-numeric: tabular-nums; }
 
@@ -279,9 +215,9 @@
   .show-card {
     background: var(--bg-card);
     border: 1px solid var(--border);
-    border-radius: var(--radius);
+    border-radius: 12px;
     overflow: hidden;
-    transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
+    transition: border-color 0.2s, box-shadow 0.2s;
   }
   .show-card:hover {
     border-color: #2a2a40;
@@ -290,11 +226,20 @@
   .show-card.season-done { opacity: 0.5; }
 
   .show-card-header {
-    padding: 20px 20px 14px;
+    padding: 16px 20px 14px;
     display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    gap: 12px;
+    align-items: center;
+    gap: 14px;
+    background: linear-gradient(135deg, #12121a, #141420);
+  }
+  .show-poster {
+    width: 44px;
+    height: 66px;
+    border-radius: 6px;
+    object-fit: cover;
+    display: block;
+    flex-shrink: 0;
+    border: 1px solid var(--border);
   }
   .show-card-header .show-name {
     font-family: 'Figtree', sans-serif;
@@ -303,10 +248,9 @@
     letter-spacing: -0.02em;
   }
   .show-card-header .show-meta {
-    font-family: 'DM Sans', sans-serif;
     font-size: 13px;
     color: var(--text-muted);
-    margin-top: 2px;
+    margin-top: 1px;
   }
   .show-status {
     font-family: 'DM Sans', sans-serif;
@@ -317,12 +261,13 @@
     white-space: nowrap;
     text-transform: uppercase;
     letter-spacing: 0.05em;
+    margin-left: auto;
     flex-shrink: 0;
   }
   .show-status.running { background: #3a7bd522; color: var(--blue); border: 1px solid #3a7bd533; }
   .show-status.done { background: #55506a22; color: var(--text-dim); border: 1px solid #55506a33; }
 
-  /* ── Countdown row with progress ring ── */
+  /* ── Countdown row ── */
   .countdown-row {
     padding: 12px 20px;
     display: flex;
@@ -330,62 +275,13 @@
     gap: 14px;
     border-bottom: 1px solid var(--border-subtle);
   }
-  .cd-ring-wrap {
-    flex-shrink: 0;
-    position: relative;
-    width: 44px;
-    height: 44px;
-  }
-  .cd-ring-wrap svg {
-    width: 44px;
-    height: 44px;
-    transform: rotate(-90deg);
-  }
-  .cd-ring-wrap .ring-bg {
-    fill: none;
-    stroke: var(--border-subtle);
-    stroke-width: 3;
-  }
-  .cd-ring-wrap .ring-fg {
-    fill: none;
-    stroke: var(--blue);
-    stroke-width: 3;
-    stroke-linecap: round;
-    transition: stroke-dashoffset 0.5s ease;
-  }
-  .cd-ring-wrap .ring-fg.live { stroke: var(--red); }
-  .cd-ring-wrap .ring-fg.close { stroke: var(--amber); }
-  .cd-ring-wrap .cd-center {
-    position: absolute;
-    inset: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  .cd-ring-wrap .cd-center .bar {
-    width: 3px;
-    height: 14px;
-    border-radius: 2px;
-    background: var(--red);
-    opacity: 0.5;
-  }
-  .cd-ring-wrap .cd-center .bar:nth-child(1) { animation: bar-pulse 1.8s ease-in-out infinite; }
-  .cd-ring-wrap .cd-center .bar:nth-child(2) { animation: bar-pulse 1.8s ease-in-out 0.3s infinite; }
-  .cd-ring-wrap .cd-center .bar:nth-child(3) { animation: bar-pulse 1.8s ease-in-out 0.6s infinite; }
-  @keyframes bar-pulse {
-    0%, 100% { opacity: 0.3; height: 10px; }
-    50% { opacity: 1; height: 18px; }
-  }
-
   .cd-details { flex: 1; min-width: 0; }
   .cd-details .cd-label {
-    font-family: 'DM Sans', sans-serif;
     font-size: 12px;
     color: var(--text-muted);
     font-weight: 500;
   }
   .cd-details .cd-ep {
-    font-family: 'DM Sans', sans-serif;
     font-size: 14px;
     font-weight: 500;
     white-space: nowrap;
@@ -404,15 +300,17 @@
   }
   .cd-countdown {
     font-family: 'JetBrains Mono', monospace;
-    font-size: 16px;
+    font-size: 18px;
     font-weight: 700;
     letter-spacing: -0.03em;
     font-variant-numeric: tabular-nums;
     flex-shrink: 0;
+    min-width: 80px;
+    text-align: right;
   }
   .cd-countdown.live { color: var(--red); }
   .cd-countdown.close { color: var(--amber); }
-  .cd-countdown.far { color: var(--blue); }
+  .cd-countdown.far { color: var(--text-muted); }
 
   /* ── Progress bar ── */
   .progress-wrap { padding: 12px 20px 0; }
@@ -449,7 +347,6 @@
     gap: 10px;
     padding: 7px 8px;
     border-bottom: 1px solid var(--border-subtle);
-    cursor: pointer;
     transition: background 0.15s, opacity 0.3s;
     border-radius: 4px;
   }
@@ -532,7 +429,6 @@
   }
   .ep-details { flex: 1; min-width: 0; }
   .ep-name {
-    font-family: 'DM Sans', sans-serif;
     font-size: 14px;
     font-weight: 500;
     white-space: nowrap;
@@ -553,7 +449,6 @@
     vertical-align: middle;
   }
   .ep-date {
-    font-family: 'DM Sans', sans-serif;
     font-size: 12px;
     color: var(--text-dim);
     margin-top: 1px;
@@ -572,20 +467,17 @@
   .ep-time-badge.today-badge { background: #e84a4a22; color: var(--red); font-weight: 700; }
   .ep-time-badge.tomorrow-badge { background: #e89a3a22; color: var(--amber); font-weight: 700; }
 
-  /* ── Empty state ── */
   .empty-state {
     text-align: center;
     padding: 48px 20px;
     color: var(--text-dim);
   }
   .empty-state .icon { font-size: 48px; margin-bottom: 12px; }
-  .empty-state .msg { font-family: 'DM Sans', sans-serif; font-size: 15px; }
+  .empty-state .msg { font-size: 15px; }
 
-  /* ── Footer ── */
   .footer {
     text-align: center;
     padding: 24px;
-    font-family: 'DM Sans', sans-serif;
     font-size: 12px;
     color: var(--text-dim);
     border-top: 1px solid var(--border-subtle);
@@ -595,7 +487,6 @@
   .footer a { color: var(--blue); text-decoration: none; }
   .footer a:hover { text-decoration: underline; }
 
-  /* ── Responsive ── */
   @media (max-width: 640px) {
     .header { padding: 20px 16px 14px; }
     .hdg-xl { font-size: 22px; }
@@ -605,31 +496,23 @@
     .show-grid { grid-template-columns: 1fr; }
     .spotlight-card { flex-direction: column; align-items: flex-start; }
     .ep-item { flex-wrap: wrap; }
-    .countdown-row { flex-wrap: wrap; }
-    .cd-ring-wrap { width: 36px; height: 36px; }
-    .cd-ring-wrap svg { width: 36px; height: 36px; }
-    .cd-countdown { font-size: 14px; }
     .season-row { padding: 0 16px; }
+    .show-poster { width: 36px; height: 54px; }
+    .cd-countdown { font-size: 15px; min-width: auto; }
   }
 </style>
 </head>
 <body>
 
-<!-- ═══ Header with signal bars ═══ -->
 <header class="header">
   <div class="header-content">
     <div class="header-top">
-      <div>
+      <div class="header-left">
         <h1 class="header-title hdg-xl">
           <span class="accent-red">TV</span> Shows
           <span class="accent-amber">Track</span><span class="accent-blue">er</span>
         </h1>
         <p class="header-subtitle">Episode release dashboard — all times in your local timezone</p>
-        <div class="signal-bars">
-          <span class="signal-bar"></span>
-          <span class="signal-bar"></span>
-          <span class="signal-bar"></span>
-        </div>
       </div>
       <div class="header-time">
         <div class="time" id="local-time">--:--:--</div>
@@ -640,17 +523,14 @@
   </div>
 </header>
 
-<!-- ═══ Season summary chips ═══ -->
 <div class="season-row" id="season-row"></div>
 
-<!-- ═══ Filter Bar ═══ -->
 <div class="filter-bar">
   <button class="filter-btn active" data-filter="all">All Shows</button>
   <button class="filter-btn" data-filter="today">Today</button>
   <button class="filter-btn" data-filter="upcoming">Upcoming</button>
 </div>
 
-<!-- ═══ Main ═══ -->
 <main class="main" id="app">
   <div class="spotlight" id="spotlight"></div>
   <div class="show-grid" id="show-grid"></div>
@@ -658,15 +538,11 @@
 
 <footer class="footer">
   <a href="https://github.com/hermey-bot/tv-shows-tracker" target="_blank" rel="noopener">GitHub</a>
-  · Data from Wikipedia &amp; TVMaze
+  · Posters via <a href="https://www.tvmaze.com/" target="_blank" rel="noopener">TVMaze</a>
   · Updated <span id="update-date">---</span>
 </footer>
 
 <script>
-// ── Data ──────────────────────────────────────────────────────────
-
-const C = 2 * Math.PI * 14; // SVG ring circumference (r=14)
-
 const TZ_OFFSETS = {
   'America/New_York': -4,
   'America/Los_Angeles': -7,
@@ -678,11 +554,12 @@ const SHOWS = [
     name: 'Rick and Morty',
     season: 'Season 9',
     platform: 'Adult Swim / Max',
-    gradient: 'show-1',
+    poster: 'https://static.tvmaze.com/uploads/images/medium_portrait/2/6872.jpg',
     status: 'running',
     timezone: 'America/New_York',
     releaseHour: 23,
     releaseMinute: 0,
+    gradient: 'show-1',
     schedule: [
       { ep: 'S09E01', title: "There's Something About Morty",     date: '2026-05-24' },
       { ep: 'S09E02', title: "Ricks Days, Seven Nights",          date: '2026-05-31' },
@@ -698,14 +575,15 @@ const SHOWS = [
   },
   {
     id: 'xmen-97',
-    name: 'X-Men \'97',
+    name: "X-Men '97",
     season: 'Season 2',
     platform: 'Disney+',
-    gradient: 'show-2',
+    poster: 'https://static.tvmaze.com/uploads/images/medium_portrait/630/1576859.jpg',
     status: 'running',
     timezone: 'America/Los_Angeles',
     releaseHour: 0,
     releaseMinute: 0,
+    gradient: 'show-2',
     schedule: [
       { ep: 'S02E01', title: 'Days of Past Future - Part 1',             date: '2026-07-01' },
       { ep: 'S02E02', title: 'A Force to be Reckoned With',              date: '2026-07-01' },
@@ -723,11 +601,12 @@ const SHOWS = [
     name: 'Silo',
     season: 'Season 3',
     platform: 'Apple TV+',
-    gradient: 'show-3',
+    poster: 'https://static.tvmaze.com/uploads/images/medium_portrait/631/1577677.jpg',
     status: 'running',
     timezone: 'America/Los_Angeles',
     releaseHour: 0,
     releaseMinute: 0,
+    gradient: 'show-3',
     schedule: [
       { ep: 'S03E01', title: 'Who Are You?',                           date: '2026-07-03' },
       { ep: 'S03E02', title: "It's All Good",                          date: '2026-07-10' },
@@ -816,16 +695,6 @@ function getNextEpisode(show) {
   return null;
 }
 
-function getPrevEpisode(show) {
-  let prev = null;
-  for (const ep of show.schedule) {
-    const cls = classifyDate(ep.date, show.timezone, show.releaseHour, show.releaseMinute);
-    if (cls === 'past') prev = ep;
-    else break;
-  }
-  return prev;
-}
-
 function getCountdown(episodeTimestampMs) {
   const diff = episodeTimestampMs - Date.now();
   if (diff <= 0) return { total: 0, d: 0, h: 0, m: 0, s: 0 };
@@ -844,43 +713,25 @@ function formatCountdownFull(cd) {
   return `${cd.m}m ${cd.s}s`;
 }
 
-function getRingProgress(show) {
-  const next = getNextEpisode(show);
-  const prev = getPrevEpisode(show);
-  if (!next) return 1; // season done
-  if (!prev) return 0; // no previous episode yet
-  const nextTs = episodeTimestamp(next.date, show.timezone, show.releaseHour, show.releaseMinute);
-  const prevTs = episodeTimestamp(prev.date, show.timezone, show.releaseHour, show.releaseMinute);
-  const now = Date.now();
-  const total = nextTs - prevTs;
-  const elapsed = now - prevTs;
-  if (total <= 0) return 1;
-  return Math.min(1, Math.max(0, elapsed / total));
-}
-
-// ── Render Functions ──
+// ── Render ──
 
 function renderSeasonChips() {
   const row = document.getElementById('season-row');
   let html = '';
   for (const show of SHOWS) {
     const next = getNextEpisode(show);
-    let color = 'var(--text-dim)';
-    let label;
     if (!next) {
-      color = 'var(--text-dim)';
-      label = 'Season Complete';
-    } else {
-      const cls = classifyDate(next.date, show.timezone, show.releaseHour, show.releaseMinute);
-      if (cls === 'today') { color = 'var(--red)'; label = 'Airing Today'; }
-      else if (cls === 'tomorrow') { color = 'var(--amber)'; label = 'Tomorrow'; }
-      else { color = 'var(--blue)'; label = `Next ${next.ep}`; }
-      const ts = episodeTimestamp(next.date, show.timezone, show.releaseHour, show.releaseMinute);
-      const cd = getCountdown(ts);
-      html += `<div class="season-chip"><span class="chip-dot" style="background:${color}"></span><span class="num">${show.name}</span> <span>${label} · </span><span class="num" id="chip-${show.id}">${cd.d > 0 ? cd.d+'d '+cd.h+'h' : cd.h > 0 ? cd.h+'h '+cd.m+'m' : cd.m+'m'}</span></div>`;
+      html += `<div class="season-chip"><span class="chip-dot" style="background:var(--text-dim)"></span><span class="num">${show.name}</span><span> — Complete</span></div>`;
       continue;
     }
-    html += `<div class="season-chip"><span class="chip-dot" style="background:${color}"></span><span class="num">${show.name}</span><span> — ${label}</span></div>`;
+    const cls = classifyDate(next.date, show.timezone, show.releaseHour, show.releaseMinute);
+    let color, label;
+    if (cls === 'today') { color = 'var(--red)'; label = 'Airing Today'; }
+    else if (cls === 'tomorrow') { color = 'var(--amber)'; label = 'Tomorrow'; }
+    else { color = 'var(--blue)'; label = `Next ${next.ep}`; }
+    const ts = episodeTimestamp(next.date, show.timezone, show.releaseHour, show.releaseMinute);
+    const cd = getCountdown(ts);
+    html += `<div class="season-chip"><span class="chip-dot" style="background:${color}"></span><span class="num">${show.name}</span> <span>${label} · </span><span class="num" id="chip-${show.id}">${cd.d > 0 ? cd.d+'d '+cd.h+'h' : cd.h > 0 ? cd.h+'h '+cd.m+'m' : cd.m+'m'}</span></div>`;
   }
   row.innerHTML = html;
 }
@@ -904,8 +755,7 @@ function renderSpotlight(todayEps, tomorrowEps) {
           <div class="ep-time" style="color:var(--red);">${formatLocalTime(ep.date, ep.timezone, ep.hour, ep.minute)}</div>
           <div class="countdown" style="color:var(--red);" id="spl-cd">${formatCountdownFull(cd)}</div>
         </div>
-      </div>
-    `;
+      </div>`;
     return;
   }
   if (tomorrowEps.length > 0) {
@@ -925,36 +775,11 @@ function renderSpotlight(todayEps, tomorrowEps) {
           <div class="ep-time" style="color:var(--amber);">${formatLocalTime(ep.date, ep.timezone, ep.hour, ep.minute)}</div>
           <div class="countdown" style="color:var(--amber);" id="spl-cd">${formatCountdownFull(cd)}</div>
         </div>
-      </div>
-    `;
+      </div>`;
     return;
   }
   el.classList.remove('has-spotlight');
   el.innerHTML = '';
-}
-
-function renderRingProgress(show) {
-  const pct = getRingProgress(show);
-  const off = C * (1 - Math.min(1, Math.max(0, pct)));
-  const next = getNextEpisode(show);
-  let cls = 'ring-fg';
-  if (!next) cls = 'ring-bg';
-  else {
-    const cls2 = classifyDate(next.date, show.timezone, show.releaseHour, show.releaseMinute);
-    if (cls2 === 'today') cls += ' live';
-    else if (pct > 0.7) cls += ' close';
-  }
-  return `<div class="cd-ring-wrap">
-    <svg viewBox="0 0 36 36">
-      <circle class="ring-bg" cx="18" cy="18" r="14"/>
-      <circle class="${cls}" cx="18" cy="18" r="14" stroke-dasharray="${C}" stroke-dashoffset="${off}"/>
-    </svg>
-    <div class="cd-center">
-      <div class="bar"></div>
-      <div class="bar"></div>
-      <div class="bar"></div>
-    </div>
-  </div>`;
 }
 
 function renderShowCard(show) {
@@ -965,7 +790,6 @@ function renderShowCard(show) {
   const allPast = !next;
   const isFinale = next && next.ep === show.schedule[show.schedule.length - 1].ep;
 
-  // Countdown row
   let cdHtml = '';
   if (next) {
     const ts = episodeTimestamp(next.date, show.timezone, show.releaseHour, show.releaseMinute);
@@ -975,7 +799,6 @@ function renderShowCard(show) {
     const finaleTag = isFinale ? '<span class="finale-badge">🏁 Finale</span>' : '';
     cdHtml = `
       <div class="countdown-row">
-        ${renderRingProgress(show)}
         <div class="cd-details">
           <div class="cd-label">Next episode</div>
           <div class="cd-ep">${next.ep} — ${next.title}${finaleTag}</div>
@@ -1011,7 +834,7 @@ function renderShowCard(show) {
           <span class="ep-number">${ep.ep}</span>
           <div class="ep-details">
             <div class="ep-name ${epNameCls}">${ep.title}${finaleTag}</div>
-            <div class="ep-date">${dateDisplay} · ${localTime}</div>
+            <div class="ep-date">${dateDisplay} · <strong>${localTime}</strong></div>
           </div>
           ${badge}
         </div>`;
@@ -1032,7 +855,7 @@ function renderShowCard(show) {
         <span class="ep-number">${ep.ep}</span>
         <div class="ep-details">
           <div class="ep-name ${epNameCls}">${ep.title}${finaleTag}</div>
-          <div class="ep-date">${dateDisplay} · ${localTime}</div>
+          <div class="ep-date">${dateDisplay} · <strong>${localTime}</strong></div>
         </div>
         ${badge}
       </div>`;
@@ -1040,10 +863,11 @@ function renderShowCard(show) {
 
   return `
     <div class="show-card ${allPast ? 'season-done' : ''}" data-show="${show.id}">
-      <div class="show-card-header" style="background: var(--gradient-${show.gradient});">
+      <div class="show-card-header">
+        <img class="show-poster" src="${show.poster}" alt="${show.name}" loading="lazy" onerror="this.style.display='none'">
         <div>
           <div class="show-name">${show.name}</div>
-          <div class="show-meta">${show.season} · ${show.platform} · ${total} episodes</div>
+          <div class="show-meta">${show.season} · ${total} episodes</div>
         </div>
         <span class="show-status ${statusCls}">${statusLabel}</span>
       </div>
@@ -1088,17 +912,15 @@ function renderAll(filter) {
   renderSeasonChips();
   renderSpotlight(todayEps, tomorrowEps);
   grid.innerHTML = html || `<div class="empty-state"><div class="icon">📭</div><div class="msg body-md">No episodes match this filter.</div></div>`;
-
   tickCountdowns();
 }
 
-// ── Live countdown ticks ──
+// ── Live ticks ──
 
 let tickInterval = null;
 
 function tickCountdowns() {
   if (tickInterval) clearInterval(tickInterval);
-
   function tick() {
     // Spotlight
     const splCd = document.getElementById('spl-cd');
@@ -1120,7 +942,7 @@ function tickCountdowns() {
       }
     }
 
-    // Show countdowns + rings
+    // Show countdowns
     SHOWS.forEach(show => {
       const next = getNextEpisode(show);
       const el = document.getElementById(`cd-${show.id}`);
@@ -1129,25 +951,9 @@ function tickCountdowns() {
       const ts = episodeTimestamp(next.date, show.timezone, show.releaseHour, show.releaseMinute);
       const cd = getCountdown(ts);
       el.textContent = formatCountdownFull(cd);
-
-      // Update ring animation
-      const ringWrap = el.closest('.countdown-row')?.querySelector('.cd-ring-wrap');
-      if (ringWrap) {
-        const pct = getRingProgress(show);
-        const off = C * (1 - Math.min(1, Math.max(0, pct)));
-        const circle = ringWrap.querySelector('.ring-fg');
-        if (circle) {
-          circle.setAttribute('stroke-dashoffset', off);
-          // Update class
-          const cls2 = classifyDate(next.date, show.timezone, show.releaseHour, show.releaseMinute);
-          circle.className = 'ring-fg';
-          if (cls2 === 'today') circle.classList.add('live');
-          else if (pct > 0.7) circle.classList.add('close');
-        }
-      }
     });
 
-    // Chips
+    // Season chips
     SHOWS.forEach(show => {
       const chip = document.getElementById(`chip-${show.id}`);
       if (!chip) return;
@@ -1158,7 +964,6 @@ function tickCountdowns() {
       chip.textContent = cd.d > 0 ? cd.d+'d '+cd.h+'h' : cd.h > 0 ? cd.h+'h '+cd.m+'m' : cd.m+'m';
     });
   }
-
   tick();
   tickInterval = setInterval(tick, 1000);
 }
@@ -1173,16 +978,6 @@ function updateClock() {
     now.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
 }
 
-// ── Signal bars animation ──
-
-function tickSignalBars() {
-  const bars = document.querySelectorAll('.signal-bar');
-  bars.forEach((bar, i) => {
-    const heights = [12 + Math.random() * 12, 18 + Math.random() * 16, 24 + Math.random() * 18];
-    bar.style.height = heights[i] + 'px';
-  });
-}
-
 // ── Init ──
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -1194,7 +989,6 @@ document.addEventListener('DOMContentLoaded', () => {
   let filter = 'all';
   renderAll(filter);
 
-  // Filter buttons
   document.querySelectorAll('.filter-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
@@ -1205,13 +999,8 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // Clock
   updateClock();
   setInterval(updateClock, 1000);
-
-  // Signal bars ambient animation
-  tickSignalBars();
-  setInterval(tickSignalBars, 800);
 });
 </script>
 </body>
