@@ -403,12 +403,12 @@
     <div class="header-top">
       <div>
         <h1 class="header-title">TV Shows Tracker</h1>
-        <p class="header-subtitle">Episode release dashboard — Sri Lanka time</p>
+        <p class="header-subtitle">Episode release dashboard — times shown in your local timezone</p>
       </div>
       <div class="header-time">
-        <div class="time" id="sl-time">--:--</div>
-        <div class="tz">Sri Lanka (UTC+5:30)</div>
-        <div class="date" id="sl-date">---</div>
+        <div class="time" id="local-time">--:--</div>
+        <div class="tz" id="local-tz">Loading...</div>
+        <div class="date" id="local-date">---</div>
       </div>
     </div>
   </div>
@@ -433,6 +433,8 @@
 
 <script>
 // ── Data ──────────────────────────────────────────────────────────
+// Show times are stored in their original US timezones.
+// The browser auto-converts everything to YOUR local timezone.
 
 const SHOWS = [
   {
@@ -442,7 +444,10 @@ const SHOWS = [
     platform: 'Adult Swim / Max',
     gradient: 'show-1',
     status: 'running',
-    slTime: 'Mon 8:30 AM SL time',
+    // 11:00 PM ET (America/New_York = UTC-4 in summer)
+    timezone: 'America/New_York',
+    releaseHour: 23,
+    releaseMinute: 0,
     schedule: [
       { ep: 'S09E01', title: "There's Something About Morty",     date: '2026-05-24' },
       { ep: 'S09E02', title: "Ricks Days, Seven Nights",          date: '2026-05-31' },
@@ -463,7 +468,10 @@ const SHOWS = [
     platform: 'Disney+',
     gradient: 'show-2',
     status: 'running',
-    slTime: 'Wed 12:30 PM SL time',
+    // 12:00 AM PT (America/Los_Angeles = UTC-7 in summer)
+    timezone: 'America/Los_Angeles',
+    releaseHour: 0,
+    releaseMinute: 0,
     schedule: [
       { ep: 'S02E01', title: 'Days of Past Future - Part 1',             date: '2026-07-01' },
       { ep: 'S02E02', title: 'A Force to be Reckoned With',              date: '2026-07-01' },
@@ -483,7 +491,10 @@ const SHOWS = [
     platform: 'Apple TV+',
     gradient: 'show-3',
     status: 'running',
-    slTime: 'Fri 12:30 PM SL time',
+    // 12:00 AM PT (America/Los_Angeles = UTC-7 in summer)
+    timezone: 'America/Los_Angeles',
+    releaseHour: 0,
+    releaseMinute: 0,
     schedule: [
       { ep: 'S03E01', title: 'Who Are You?',                           date: '2026-07-03' },
       { ep: 'S03E02', title: "It's All Good",                          date: '2026-07-10' },
@@ -499,16 +510,31 @@ const SHOWS = [
   }
 ];
 
+// ── IANA timezone → UTC offset in hours (for summer 2026) ─────────
+const TZ_OFFSETS = {
+  'America/New_York': -4,
+  'America/Los_Angeles': -7,
+};
+
 // ── Helpers ───────────────────────────────────────────────────────
 
-function todayStr() {
-  const now = new Date();
-  const utc = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
-  // Sri Lanka is UTC+5:30
-  const sl = new Date(utc.getTime() + 5.5 * 3600000);
-  return sl.toISOString().slice(0, 10);
+/** UTC timestamp (ms) of an episode's release moment (US timezone) */
+function episodeTimestamp(dateStr, timezone, hour, minute) {
+  const [y, m, d] = dateStr.split('-').map(Number);
+  const offset = TZ_OFFSETS[timezone] || 0;
+  return Date.UTC(y, m - 1, d, hour - offset, minute);
 }
 
+/** Today's date (YYYY-MM-DD) in the user's local timezone */
+function todayStr() {
+  const now = new Date();
+  const y = now.getFullYear();
+  const m = String(now.getMonth() + 1).padStart(2, '0');
+  const d = String(now.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
+}
+
+/** Classify an episode based on its RELEASE date (same calendar day, user's local) */
 function classifyDate(dateStr) {
   const t = todayStr();
   if (dateStr === t) return 'today';
@@ -516,9 +542,33 @@ function classifyDate(dateStr) {
   return 'upcoming';
 }
 
+/** Format the release moment to a friendly local-time string */
+function formatLocalTime(dateStr, timezone, hour, minute) {
+  const ts = episodeTimestamp(dateStr, timezone, hour, minute);
+  const d = new Date(ts);
+  return d.toLocaleDateString('en-US', {
+    weekday: 'short',
+    hour: 'numeric',
+    minute: '2-digit',
+    hour12: true,
+  });
+}
+
+/** Short friendly date string (no time) */
 function formatDate(dateStr) {
-  const d = new Date(dateStr + 'T12:00:00+05:30');
+  const d = new Date(dateStr + 'T12:00:00');
   return d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+}
+
+/** User-friendly timezone display name */
+function formatTimezone() {
+  const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || 'Local';
+  const offset = -new Date().getTimezoneOffset();
+  const hrs = Math.floor(Math.abs(offset) / 60);
+  const mins = Math.abs(offset) % 60;
+  const sign = offset >= 0 ? '+' : '-';
+  const gmt = `GMT${sign}${hrs}:${String(mins).padStart(2, '0')}`;
+  return `${tz} (${gmt})`;
 }
 
 // ── Render Functions ──
@@ -530,16 +580,18 @@ function renderSpotlight(todayEpisodes) {
     el.innerHTML = '';
     return;
   }
+  const ep = todayEpisodes[0];
+  const localTime = formatLocalTime(ep.date, ep.timezone, ep.hour, ep.minute);
   el.classList.add('has-today');
   el.innerHTML = `
     <div class="spotlight-title"><span class="dot"></span> Airing Today</div>
     <div class="spotlight-card">
-      <span class="show-badge">${todayEpisodes[0].show}</span>
+      <span class="show-badge">${ep.showName}</span>
       <div class="ep-info">
-        <div class="ep-title">${todayEpisodes[0].ep} — ${todayEpisodes[0].title}</div>
-        <div class="ep-meta">${todayEpisodes[0].platform} • ${formatDate(todayEpisodes[0].date)}</div>
+        <div class="ep-title">${ep.ep} — ${ep.title}</div>
+        <div class="ep-meta">${ep.platform} • ${formatDate(ep.date)}</div>
       </div>
-      <div class="ep-time">${todayEpisodes[0].slTime}</div>
+      <div class="ep-time">${localTime}</div>
     </div>
   `;
 }
@@ -548,10 +600,10 @@ function renderShowCard(show) {
   const total = show.schedule.length;
   const past = show.schedule.filter(e => classifyDate(e.date) === 'past').length;
   const pct = Math.round((past / total) * 100);
-  const statusLabel = show.status === 'running' ? 'Airing' : show.status === 'future' ? 'Upcoming' : 'Ended';
 
   let itemsHtml = show.schedule.map(ep => {
     const cls = classifyDate(ep.date);
+    const localTime = formatLocalTime(ep.date, show.timezone, show.releaseHour, show.releaseMinute);
     const dateDisplay = formatDate(ep.date);
     return `
       <div class="ep-item ${cls === 'past' ? 'past' : ''}">
@@ -559,12 +611,16 @@ function renderShowCard(show) {
         <span class="ep-number">${ep.ep}</span>
         <div class="ep-details">
           <div class="ep-name ${cls === 'today' ? 'today-ep' : ''}">${ep.title}</div>
-          <div class="ep-date">${dateDisplay} <strong>·</strong> ${show.slTime}</div>
+          <div class="ep-date">${dateDisplay} · ${localTime}</div>
         </div>
-        ${cls === 'today' ? `<span class="ep-time-badge today-badge">TODAY</span>` : `<span class="ep-time-badge">${show.slTime}</span>`}
+        ${cls === 'today' ? '<span class="ep-time-badge today-badge">TODAY</span>' :
+          cls === 'past' ? '<span class="ep-time-badge">Aired</span>' :
+          `<span class="ep-time-badge">${localTime}</span>`}
       </div>
     `;
   }).join('');
+
+  const statusLabel = show.status === 'running' ? 'Airing' : show.status === 'future' ? 'Upcoming' : 'Ended';
 
   return `
     <div class="show-card" data-show="${show.id}">
@@ -595,22 +651,26 @@ function renderAll(filter) {
 
   let html = '';
   SHOWS.forEach(show => {
-    // Collect today's episodes
+    const showHasToday = show.schedule.some(ep => classifyDate(ep.date) === 'today');
+    const showHasUpcoming = show.schedule.some(ep => classifyDate(ep.date) === 'upcoming');
+
+    // Collect today's episodes for spotlight
     show.schedule.forEach(ep => {
       if (classifyDate(ep.date) === 'today') {
-        todayEps.push({ ...ep, show: show.name, platform: show.platform, slTime: show.slTime });
+        todayEps.push({
+          ...ep,
+          showName: show.name,
+          platform: show.platform,
+          timezone: show.timezone,
+          hour: show.releaseHour,
+          minute: show.releaseMinute,
+        });
       }
     });
 
     // Filter
-    if (filter === 'today') {
-      const hasToday = show.schedule.some(e => classifyDate(e.date) === 'today');
-      if (!hasToday) return;
-    }
-    if (filter === 'upcoming') {
-      const hasUpcoming = show.schedule.some(e => classifyDate(e.date) === 'upcoming');
-      if (!hasUpcoming) return;
-    }
+    if (filter === 'today' && !showHasToday) return;
+    if (filter === 'upcoming' && !showHasUpcoming) return;
 
     html += renderShowCard(show);
   });
@@ -623,13 +683,10 @@ function renderAll(filter) {
 
 function updateClock() {
   const now = new Date();
-  const utc = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(),
-    now.getUTCHours(), now.getUTCMinutes(), now.getUTCSeconds()));
-  const sl = new Date(utc.getTime() + 5.5 * 3600000);
-  document.getElementById('sl-time').textContent =
-    sl.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true });
-  document.getElementById('sl-date').textContent =
-    sl.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+  document.getElementById('local-time').textContent =
+    now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true });
+  document.getElementById('local-date').textContent =
+    now.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
 }
 
 // ── Init ──
@@ -638,6 +695,7 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('update-date').textContent = new Date().toLocaleDateString('en-US', {
     month: 'short', day: 'numeric', year: 'numeric'
   });
+  document.getElementById('local-tz').textContent = formatTimezone();
 
   let filter = 'all';
   renderAll(filter);
