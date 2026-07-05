@@ -101,6 +101,29 @@
     margin-top: 2px;
   }
 
+  /* ── Season countdown row ── */
+  .season-row {
+    max-width: 1200px;
+    margin: 20px auto 0;
+    padding: 0 24px;
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .season-chip {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    padding: 5px 12px;
+    border-radius: 20px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+  }
+  .season-chip .num { font-weight: 700; color: var(--text); }
+  .season-chip .label { font-weight: 500; }
+
   /* ── Filter bar ── */
   .filter-bar {
     max-width: 1200px;
@@ -131,15 +154,14 @@
     padding: 0 24px 48px;
   }
 
-  /* ── Today's Spotlight ── */
+  /* ── Spotlight ── */
   .spotlight { margin-bottom: 32px; display: none; }
-  .spotlight.has-today { display: block; }
+  .spotlight.has-spotlight { display: block; }
   .spotlight-title {
     font-size: 13px;
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 1.2px;
-    color: var(--green);
     margin-bottom: 12px;
     display: flex;
     align-items: center;
@@ -148,7 +170,6 @@
   .spotlight-title .dot {
     width: 8px; height: 8px;
     border-radius: 50%;
-    background: var(--green);
     animation: pulse-dot 1.5s ease-in-out infinite;
   }
   @keyframes pulse-dot {
@@ -156,8 +177,6 @@
     50% { opacity: 0.5; transform: scale(1.3); }
   }
   .spotlight-card {
-    background: linear-gradient(135deg, #22c55e0d, #22c55e05);
-    border: 1px solid #22c55e33;
     border-radius: var(--radius);
     padding: 20px 24px;
     display: flex;
@@ -170,18 +189,14 @@
     font-weight: 600;
     padding: 3px 10px;
     border-radius: 6px;
-    background: var(--green);
     color: #000;
   }
   .spotlight-card .ep-info { flex: 1; min-width: 200px; }
   .spotlight-card .ep-title { font-size: 18px; font-weight: 700; }
   .spotlight-card .ep-meta { font-size: 13px; color: var(--text-muted); margin-top: 2px; }
-  .spotlight-card .ep-time {
-    font-size: 14px;
-    font-weight: 600;
-    color: var(--green);
-    white-space: nowrap;
-  }
+  .spotlight-card .ep-right { text-align: right; flex-shrink: 0; }
+  .spotlight-card .ep-time { font-size: 14px; font-weight: 600; white-space: nowrap; }
+  .spotlight-card .countdown { font-size: 13px; font-weight: 500; margin-top: 4px; font-variant-numeric: tabular-nums; }
 
   /* ── Show Grid ── */
   .show-grid {
@@ -202,9 +217,15 @@
     border-color: var(--border);
     box-shadow: 0 4px 24px rgba(0,0,0,0.3);
   }
+  .show-card.season-done {
+    opacity: 0.5;
+  }
+  .show-card.season-done .show-card-header {
+    opacity: 0.7;
+  }
 
   .show-card-header {
-    padding: 20px 20px 16px;
+    padding: 20px 20px 14px;
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
@@ -214,6 +235,10 @@
   .show-card-header .show-name {
     font-size: 20px;
     font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
   }
   .show-card-header .show-meta {
     font-size: 13px;
@@ -228,13 +253,52 @@
     white-space: nowrap;
   }
   .show-status.running { background: #22c55e22; color: var(--green); }
-  .show-status.future { background: #f59e0b22; color: var(--amber); }
-  .show-status.ended { background: #ef444422; color: var(--red); }
+  .show-status.done { background: #55557022; color: var(--text-dim); }
+
+  /* ── Countdown in header ── */
+  .countdown-row {
+    padding: 0 20px 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .countdown-row .next-label {
+    color: var(--text-muted);
+    font-weight: 500;
+  }
+  .countdown-row .next-ep {
+    color: var(--text);
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .countdown-row .next-ep .finale-badge {
+    font-size: 10px;
+    font-weight: 700;
+    padding: 1px 6px;
+    border-radius: 4px;
+    background: var(--amber);
+    color: #000;
+    margin-left: 6px;
+    vertical-align: middle;
+  }
+  .countdown-row .timer {
+    margin-left: auto;
+    font-variant-numeric: tabular-nums;
+    font-weight: 600;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .countdown-row .timer.green { color: var(--green); }
+  .countdown-row .timer.amber { color: var(--amber); }
+  .countdown-row .timer.dim { color: var(--text-dim); }
 
   /* ── Progress ── */
   .progress-wrap {
-    padding: 0 20px;
-    margin-bottom: 12px;
+    padding: 12px 20px 0;
   }
   .progress-bar {
     height: 4px;
@@ -257,15 +321,17 @@
     font-size: 11px;
     color: var(--text-dim);
     margin-top: 4px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border-subtle);
   }
 
   /* ── Episode List ── */
-  .ep-list { padding: 0 20px 16px; }
+  .ep-list { padding: 8px 20px 16px; }
   .ep-item {
     display: flex;
     align-items: center;
     gap: 12px;
-    padding: 10px 8px;
+    padding: 8px 8px;
     border-bottom: 1px solid var(--border-subtle);
     cursor: pointer;
     transition: background 0.15s, opacity 0.3s;
@@ -290,6 +356,27 @@
   .ep-item.past .ep-number {
     color: var(--text-dim);
     opacity: 0.4;
+  }
+  .ep-item.next-up {
+    background: rgba(255,255,255,0.02);
+    border: 1px solid var(--border);
+    margin: -1px 0 4px;
+    padding: 10px 8px;
+    border-radius: 8px;
+    position: relative;
+  }
+  .ep-item.next-up::before {
+    content: 'NEXT';
+    position: absolute;
+    top: -8px;
+    left: 12px;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.8px;
+    padding: 0 6px;
+    border-radius: 3px;
+    background: var(--bg-card);
+    color: var(--accent-1);
   }
 
   .ep-dot {
@@ -344,7 +431,7 @@
     font-size: 12px;
     font-weight: 600;
     color: var(--text-dim);
-    min-width: 48px;
+    min-width: 44px;
     font-variant-numeric: tabular-nums;
   }
   .ep-details { flex: 1; min-width: 0; }
@@ -357,6 +444,16 @@
   }
   .ep-name.today-ep { color: var(--green); }
   .ep-name.tomorrow-ep { color: var(--amber); }
+  .ep-name .finale-tag {
+    font-size: 10px;
+    font-weight: 700;
+    padding: 1px 6px;
+    border-radius: 4px;
+    background: var(--amber);
+    color: #000;
+    margin-left: 6px;
+    vertical-align: middle;
+  }
   .ep-date {
     font-size: 12px;
     color: var(--text-dim);
@@ -406,6 +503,9 @@
     .show-grid { grid-template-columns: 1fr; }
     .spotlight-card { flex-direction: column; align-items: flex-start; }
     .ep-item { flex-wrap: wrap; }
+    .countdown-row { flex-wrap: wrap; }
+    .countdown-row .timer { margin-left: 0; }
+    .season-row { padding: 0 16px; }
   }
 </style>
 </head>
@@ -417,7 +517,7 @@
     <div class="header-top">
       <div>
         <h1 class="header-title">TV Shows Tracker</h1>
-        <p class="header-subtitle">Episode release dashboard — times shown in your local timezone</p>
+        <p class="header-subtitle">Episode release dashboard — times in your local timezone</p>
       </div>
       <div class="header-time">
         <div class="time" id="local-time">--:--</div>
@@ -427,6 +527,9 @@
     </div>
   </div>
 </header>
+
+<!-- ═══ Season summary chips ═══ -->
+<div class="season-row" id="season-row"></div>
 
 <!-- ═══ Filter Bar ═══ -->
 <div class="filter-bar">
@@ -450,6 +553,11 @@
 // Show times are stored in their original US timezones.
 // The browser auto-converts everything to YOUR local timezone.
 
+const TZ_OFFSETS = {
+  'America/New_York': -4,
+  'America/Los_Angeles': -7,
+};
+
 const SHOWS = [
   {
     id: 'rick-and-morty',
@@ -458,7 +566,6 @@ const SHOWS = [
     platform: 'Adult Swim / Max',
     gradient: 'show-1',
     status: 'running',
-    // 11:00 PM ET (America/New_York = UTC-4 in summer)
     timezone: 'America/New_York',
     releaseHour: 23,
     releaseMinute: 0,
@@ -482,7 +589,6 @@ const SHOWS = [
     platform: 'Disney+',
     gradient: 'show-2',
     status: 'running',
-    // 12:00 AM PT (America/Los_Angeles = UTC-7 in summer)
     timezone: 'America/Los_Angeles',
     releaseHour: 0,
     releaseMinute: 0,
@@ -505,7 +611,6 @@ const SHOWS = [
     platform: 'Apple TV+',
     gradient: 'show-3',
     status: 'running',
-    // 12:00 AM PT (America/Los_Angeles = UTC-7 in summer)
     timezone: 'America/Los_Angeles',
     releaseHour: 0,
     releaseMinute: 0,
@@ -524,22 +629,14 @@ const SHOWS = [
   }
 ];
 
-// ── IANA timezone → UTC offset in hours (for summer 2026) ─────────
-const TZ_OFFSETS = {
-  'America/New_York': -4,
-  'America/Los_Angeles': -7,
-};
-
 // ── Helpers ───────────────────────────────────────────────────────
 
-/** UTC timestamp (ms) of an episode's release moment (US timezone) */
 function episodeTimestamp(dateStr, timezone, hour, minute) {
   const [y, m, d] = dateStr.split('-').map(Number);
   const offset = TZ_OFFSETS[timezone] || 0;
   return Date.UTC(y, m - 1, d, hour - offset, minute);
 }
 
-/** Today's date (YYYY-MM-DD) in the user's local timezone */
 function todayStr() {
   const now = new Date();
   const y = now.getFullYear();
@@ -548,7 +645,6 @@ function todayStr() {
   return `${y}-${m}-${d}`;
 }
 
-/** Tomorrow's date (YYYY-MM-DD) in the user's local timezone */
 function tomorrowStr() {
   const now = new Date();
   now.setDate(now.getDate() + 1);
@@ -558,7 +654,6 @@ function tomorrowStr() {
   return `${y}-${m}-${d}`;
 }
 
-/** Get the calendar date of an episode in the user's local timezone */
 function getLocalDate(dateStr, timezone, hour, minute) {
   const ts = episodeTimestamp(dateStr, timezone, hour, minute);
   const d = new Date(ts);
@@ -568,8 +663,6 @@ function getLocalDate(dateStr, timezone, hour, minute) {
   return `${y}-${m}-${day}`;
 }
 
-/** Classify an episode: 'past' | 'today' | 'tomorrow' | 'upcoming'
- *  Uses the episode's actual release moment in the USER's timezone. */
 function classifyDate(dateStr, timezone, hour, minute) {
   const epLocal = getLocalDate(dateStr, timezone, hour, minute);
   const t = todayStr();
@@ -579,123 +672,226 @@ function classifyDate(dateStr, timezone, hour, minute) {
   return 'upcoming';
 }
 
-/** Format the release moment to a friendly local-time string */
 function formatLocalTime(dateStr, timezone, hour, minute) {
   const ts = episodeTimestamp(dateStr, timezone, hour, minute);
   const d = new Date(ts);
   return d.toLocaleDateString('en-US', {
-    weekday: 'short',
-    hour: 'numeric',
-    minute: '2-digit',
-    hour12: true,
+    weekday: 'short', hour: 'numeric', minute: '2-digit', hour12: true,
   });
 }
 
-/** Short friendly date string (no time) */
 function formatDate(dateStr) {
   const d = new Date(dateStr + 'T12:00:00');
   return d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
 }
 
-/** User-friendly timezone display name */
 function formatTimezone() {
   const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || 'Local';
   const offset = -new Date().getTimezoneOffset();
   const hrs = Math.floor(Math.abs(offset) / 60);
   const mins = Math.abs(offset) % 60;
   const sign = offset >= 0 ? '+' : '-';
-  const gmt = `GMT${sign}${hrs}:${String(mins).padStart(2, '0')}`;
-  return `${tz} (${gmt})`;
+  return `${tz} (GMT${sign}${hrs}:${String(mins).padStart(2, '0')})`;
+}
+
+/** Get the next upcoming episode for a show (or null if all past) */
+function getNextEpisode(show) {
+  for (const ep of show.schedule) {
+    const cls = classifyDate(ep.date, show.timezone, show.releaseHour, show.releaseMinute);
+    if (cls !== 'past') return ep;
+  }
+  return null;
+}
+
+/** Get the countdown in ms, days, hours, minutes, seconds */
+function getCountdown(episodeTimestampMs) {
+  const diff = episodeTimestampMs - Date.now();
+  if (diff <= 0) return { total: 0, d: 0, h: 0, m: 0, s: 0 };
+  const total = diff;
+  const s = Math.floor((total / 1000) % 60);
+  const m = Math.floor((total / 60000) % 60);
+  const h = Math.floor((total / 3600000) % 24);
+  const d = Math.floor(total / 86400000);
+  return { total, d, h, m, s };
+}
+
+function formatCountdown(cd) {
+  if (cd.total <= 0) return 'Airing now!';
+  if (cd.d > 0) return `${cd.d}d ${cd.h}h`;
+  if (cd.h > 0) return `${cd.h}h ${cd.m}m`;
+  return `${cd.m}m ${cd.s}s`;
+}
+
+function formatCountdownFull(cd) {
+  if (cd.total <= 0) return 'Airing now!';
+  if (cd.d > 0) return `${cd.d}d ${cd.h}h ${cd.m}m`;
+  if (cd.h > 0) return `${cd.h}h ${cd.m}m ${cd.s}s`;
+  return `${cd.m}m ${cd.s}s`;
 }
 
 // ── Render Functions ──
 
+function renderSeasonChips() {
+  const row = document.getElementById('season-row');
+  let html = '';
+  for (const show of SHOWS) {
+    const next = getNextEpisode(show);
+    if (!next) {
+      html += `<div class="season-chip"><span class="num">${show.name}</span> <span class="label">— Season Complete</span></div>`;
+      continue;
+    }
+    const ts = episodeTimestamp(next.date, show.timezone, show.releaseHour, show.releaseMinute);
+    const cd = getCountdown(ts);
+    html += `<div class="season-chip"><span class="num">${show.name}</span> <span class="label">· Next ${next.ep} in</span> <span class="num" id="chip-${show.id}">${formatCountdown(cd)}</span></div>`;
+  }
+  row.innerHTML = html;
+}
+
 function renderSpotlight(todayEps, tomorrowEps) {
   const el = document.getElementById('spotlight');
+
   if (todayEps.length > 0) {
     const ep = todayEps[0];
-    const localTime = formatLocalTime(ep.date, ep.timezone, ep.hour, ep.minute);
-    el.classList.add('has-today');
+    const ts = episodeTimestamp(ep.date, ep.timezone, ep.hour, ep.minute);
+    const cd = getCountdown(ts);
+    el.classList.add('has-spotlight');
     el.innerHTML = `
-      <div class="spotlight-title"><span class="dot" style="background:var(--green);box-shadow:0 0 8px var(--green);"></span> Airing Today</div>
-      <div class="spotlight-card" style="background:linear-gradient(135deg, #22c55e0d, #22c55e05);border-color:#22c55e33;">
+      <div class="spotlight-title" style="color:var(--green);"><span class="dot" style="background:var(--green);box-shadow:0 0 8px var(--green);"></span> Airing Today</div>
+      <div class="spotlight-card" style="background:linear-gradient(135deg,#22c55e0d,#22c55e05);border-color:#22c55e33;">
         <span class="show-badge" style="background:var(--green);">${ep.showName}</span>
         <div class="ep-info">
           <div class="ep-title">${ep.ep} — ${ep.title}</div>
-          <div class="ep-meta">${ep.platform} • ${formatDate(ep.date)}</div>
+          <div class="ep-meta">${ep.platform} · ${formatDate(ep.date)}</div>
         </div>
-        <div class="ep-time" style="color:var(--green);">${localTime}</div>
+        <div class="ep-right">
+          <div class="ep-time" style="color:var(--green);">${formatLocalTime(ep.date, ep.timezone, ep.hour, ep.minute)}</div>
+          <div class="countdown" style="color:var(--green);opacity:0.7;" id="spl-cd">${formatCountdown(cd)}</div>
+        </div>
       </div>
     `;
     return;
   }
+
   if (tomorrowEps.length > 0) {
     const ep = tomorrowEps[0];
-    const localTime = formatLocalTime(ep.date, ep.timezone, ep.hour, ep.minute);
-    el.classList.add('has-today');
+    const ts = episodeTimestamp(ep.date, ep.timezone, ep.hour, ep.minute);
+    const cd = getCountdown(ts);
+    el.classList.add('has-spotlight');
     el.innerHTML = `
-      <div class="spotlight-title"><span class="dot" style="background:var(--amber);box-shadow:0 0 8px var(--amber);"></span> Next Up — Tomorrow</div>
-      <div class="spotlight-card" style="background:linear-gradient(135deg, #f59e0b0d, #f59e0b05);border-color:#f59e0b33;">
+      <div class="spotlight-title" style="color:var(--amber);"><span class="dot" style="background:var(--amber);box-shadow:0 0 8px var(--amber);"></span> Next Up — Tomorrow</div>
+      <div class="spotlight-card" style="background:linear-gradient(135deg,#f59e0b0d,#f59e0b05);border-color:#f59e0b33;">
         <span class="show-badge" style="background:var(--amber);color:#000;">${ep.showName}</span>
         <div class="ep-info">
           <div class="ep-title">${ep.ep} — ${ep.title}</div>
-          <div class="ep-meta">${ep.platform} • ${formatDate(ep.date)}</div>
+          <div class="ep-meta">${ep.platform} · ${formatDate(ep.date)}</div>
         </div>
-        <div class="ep-time" style="color:var(--amber);">${localTime}</div>
+        <div class="ep-right">
+          <div class="ep-time" style="color:var(--amber);">${formatLocalTime(ep.date, ep.timezone, ep.hour, ep.minute)}</div>
+          <div class="countdown" style="color:var(--amber);opacity:0.7;" id="spl-cd">${formatCountdown(cd)}</div>
+        </div>
       </div>
     `;
     return;
   }
-  el.classList.remove('has-today');
+
+  el.classList.remove('has-spotlight');
   el.innerHTML = '';
 }
 
 function renderShowCard(show) {
   const total = show.schedule.length;
-  const past = show.schedule.filter(e => classifyDate(e.date, show.timezone, show.releaseHour, show.releaseMinute) === 'past').length;
-  const pct = Math.round((past / total) * 100);
+  const pastCount = show.schedule.filter(e => classifyDate(e.date, show.timezone, show.releaseHour, show.releaseMinute) === 'past').length;
+  const pct = Math.round((pastCount / total) * 100);
+  const next = getNextEpisode(show);
+  const allPast = !next;
+  const isFinale = next && next.ep === show.schedule[show.schedule.length - 1].ep;
 
-  let itemsHtml = show.schedule.map(ep => {
+  // Countdown
+  let cdHtml = '';
+  if (next) {
+    const ts = episodeTimestamp(next.date, show.timezone, show.releaseHour, show.releaseMinute);
+    const cd = getCountdown(ts);
+    const finaleTag = isFinale ? '<span class="finale-badge">🏁 FINALE</span>' : '';
+    const timerCls = cd.d === 0 && cd.h < 6 ? 'amber' : 'green';
+    cdHtml = `
+      <div class="countdown-row">
+        <span class="next-label">Next:</span>
+        <span class="next-ep">${next.ep} — ${next.title}${finaleTag}</span>
+        <span class="timer ${timerCls}" id="cd-${show.id}">${formatCountdownFull(cd)}</span>
+      </div>`;
+  }
+
+  const statusLabel = allPast ? 'Season Done' : 'Airing';
+  const statusCls = allPast ? 'done' : 'running';
+
+  let itemsHtml = '';
+  let hasPinnedNext = false;
+
+  show.schedule.forEach((ep, idx) => {
     const cls = classifyDate(ep.date, show.timezone, show.releaseHour, show.releaseMinute);
     const localTime = formatLocalTime(ep.date, show.timezone, show.releaseHour, show.releaseMinute);
     const dateDisplay = formatDate(ep.date);
-    const nameCls = cls === 'today' ? 'today-ep' : cls === 'tomorrow' ? 'tomorrow-ep' : '';
+
+    // Pin the next-up episode at the top of the list
+    if (cls !== 'past' && !hasPinnedNext && next && ep.ep === next.ep) {
+      hasPinnedNext = true;
+      const epNameCls = cls === 'today' ? 'today-ep' : cls === 'tomorrow' ? 'tomorrow-ep' : '';
+      let badge;
+      if (cls === 'today') badge = '<span class="ep-time-badge today-badge">TODAY</span>';
+      else if (cls === 'tomorrow') badge = '<span class="ep-time-badge tomorrow-badge">TOMORROW</span>';
+      else badge = `<span class="ep-time-badge">${localTime}</span>`;
+      const finaleTag = isFinale ? '<span class="finale-tag">🏁 Finale</span>' : '';
+      itemsHtml += `
+        <div class="ep-item next-up ${cls === 'past' ? 'past' : ''}">
+          <span class="ep-dot ${cls}"></span>
+          <span class="ep-number">${ep.ep}</span>
+          <div class="ep-details">
+            <div class="ep-name ${epNameCls}">${ep.title}${finaleTag}</div>
+            <div class="ep-date">${dateDisplay} · ${localTime}</div>
+          </div>
+          ${badge}
+        </div>`;
+      return;
+    }
+
+    // Regular episode rows
+    const epNameCls = cls === 'today' ? 'today-ep' : cls === 'tomorrow' ? 'tomorrow-ep' : '';
     let badge;
     if (cls === 'today') badge = '<span class="ep-time-badge today-badge">TODAY</span>';
     else if (cls === 'tomorrow') badge = '<span class="ep-time-badge tomorrow-badge">TOMORROW</span>';
     else if (cls === 'past') badge = '<span class="ep-time-badge">Aired</span>';
     else badge = `<span class="ep-time-badge">${localTime}</span>`;
-    return `
+    const finaleTag = (idx === show.schedule.length - 1 && cls === 'upcoming') ? '<span class="finale-tag">🏁 Finale</span>' : '';
+
+    itemsHtml += `
       <div class="ep-item ${cls === 'past' ? 'past' : ''}">
         <span class="ep-dot ${cls}"></span>
         <span class="ep-number">${ep.ep}</span>
         <div class="ep-details">
-          <div class="ep-name ${nameCls}">${ep.title}</div>
+          <div class="ep-name ${epNameCls}">${ep.title}${finaleTag}</div>
           <div class="ep-date">${dateDisplay} · ${localTime}</div>
         </div>
         ${badge}
-      </div>
-    `;
-  }).join('');
-
-  const statusLabel = show.status === 'running' ? 'Airing' : show.status === 'future' ? 'Upcoming' : 'Ended';
+      </div>`;
+  });
 
   return `
-    <div class="show-card" data-show="${show.id}">
+    <div class="show-card ${allPast ? 'season-done' : ''}" data-show="${show.id}">
       <div class="show-card-header" style="background: var(--gradient-${show.gradient});">
         <div class="show-info">
           <div class="show-name">${show.name}</div>
           <div class="show-meta">${show.season} · ${show.platform} · ${total} episodes</div>
         </div>
-        <span class="show-status ${show.status}">${statusLabel}</span>
+        <span class="show-status ${statusCls}">${statusLabel}</span>
       </div>
+      ${cdHtml}
       <div class="progress-wrap">
         <div class="progress-bar">
           <div class="progress-fill ${show.gradient}" style="width: ${pct}%"></div>
         </div>
         <div class="progress-label">
-          <span>${past} aired</span>
-          <span>${total - past} remaining</span>
+          <span>${pastCount} aired</span>
+          <span>${total - pastCount} remaining</span>
         </div>
       </div>
       <div class="ep-list">${itemsHtml}</div>
@@ -713,7 +909,6 @@ function renderAll(filter) {
     const showHasToday = show.schedule.some(ep => classifyDate(ep.date, show.timezone, show.releaseHour, show.releaseMinute) === 'today');
     const showHasUpcoming = show.schedule.some(ep => ['today','tomorrow','upcoming'].includes(classifyDate(ep.date, show.timezone, show.releaseHour, show.releaseMinute)));
 
-    // Collect today's & tomorrow's episodes for spotlight
     show.schedule.forEach(ep => {
       const cls = classifyDate(ep.date, show.timezone, show.releaseHour, show.releaseMinute);
       const data = { ...ep, showName: show.name, platform: show.platform, timezone: show.timezone, hour: show.releaseHour, minute: show.releaseMinute };
@@ -721,15 +916,81 @@ function renderAll(filter) {
       else if (cls === 'tomorrow') tomorrowEps.push(data);
     });
 
-    // Filter
     if (filter === 'today' && !showHasToday) return;
     if (filter === 'upcoming' && !showHasUpcoming) return;
 
     html += renderShowCard(show);
   });
 
+  renderSeasonChips();
   renderSpotlight(todayEps, tomorrowEps);
   grid.innerHTML = html || `<div class="empty-state"><div class="icon">📭</div><div class="msg">No episodes match this filter.</div></div>`;
+
+  // Start ticking countdowns
+  tickCountdowns();
+}
+
+// ── Live countdown ticks ──
+
+let tickInterval = null;
+
+function tickCountdowns() {
+  if (tickInterval) clearInterval(tickInterval);
+
+  function tick() {
+    // Update spotlight countdown
+    const splCd = document.getElementById('spl-cd');
+    if (splCd) {
+      const spotEl = document.getElementById('spotlight');
+      if (spotEl && spotEl.classList.contains('has-spotlight')) {
+        const card = spotEl.querySelector('.spotlight-card');
+        // Recalculate from the first today/tomorrow episode
+        const todayEps = [];
+        const tomorrowEps = [];
+        SHOWS.forEach(show => {
+          show.schedule.forEach(ep => {
+            const cls = classifyDate(ep.date, show.timezone, show.releaseHour, show.releaseMinute);
+            const data = { ...ep, timezone: show.timezone, hour: show.releaseHour, minute: show.releaseMinute };
+            if (cls === 'today') todayEps.push(data);
+            else if (cls === 'tomorrow') tomorrowEps.push(data);
+          });
+        });
+        const ep = todayEps.length > 0 ? todayEps[0] : tomorrowEps.length > 0 ? tomorrowEps[0] : null;
+        if (ep) {
+          const ts = episodeTimestamp(ep.date, ep.timezone, ep.hour, ep.minute);
+          const cd = getCountdown(ts);
+          splCd.textContent = formatCountdown(cd);
+        }
+      }
+    }
+
+    // Update each show's countdown
+    SHOWS.forEach(show => {
+      const el = document.getElementById(`cd-${show.id}`);
+      if (!el) return;
+      const next = getNextEpisode(show);
+      if (!next) { el.textContent = 'Season done'; return; }
+      const ts = episodeTimestamp(next.date, show.timezone, show.releaseHour, show.releaseMinute);
+      const cd = getCountdown(ts);
+      el.textContent = formatCountdownFull(cd);
+      // Color
+      el.className = `timer ${cd.d === 0 && cd.h < 6 ? 'amber' : 'green'}`;
+    });
+
+    // Update chips
+    SHOWS.forEach(show => {
+      const chip = document.getElementById(`chip-${show.id}`);
+      if (!chip) return;
+      const next = getNextEpisode(show);
+      if (!next) return;
+      const ts = episodeTimestamp(next.date, show.timezone, show.releaseHour, show.releaseMinute);
+      const cd = getCountdown(ts);
+      chip.textContent = formatCountdown(cd);
+    });
+  }
+
+  tick();
+  tickInterval = setInterval(tick, 1000);
 }
 
 // ── Clock ──
@@ -759,6 +1020,7 @@ document.addEventListener('DOMContentLoaded', () => {
       document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
       filter = btn.dataset.filter;
+      if (tickInterval) clearInterval(tickInterval);
       renderAll(filter);
     });
   });
