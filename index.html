@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TV Shows Tracker — Episode Release Dashboard</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0a0a0f;
+    --bg-card: #12121a;
+    --bg-card-hover: #181824;
+    --border: #1e1e30;
+    --border-subtle: #161622;
+    --text: #e8e8f0;
+    --text-muted: #8888a0;
+    --text-dim: #555570;
+    --accent-1: #7c3aed;
+    --accent-2: #2563eb;
+    --accent-3: #06b6d4;
+    --green: #22c55e;
+    --amber: #f59e0b;
+    --red: #ef4444;
+    --gradient-header: linear-gradient(135deg, #1a0533 0%, #0a1628 50%, #051520 100%);
+    --gradient-show-1: linear-gradient(135deg, #7c3aed22, #2563eb22);
+    --gradient-show-2: linear-gradient(135deg, #06b6d422, #22c55e22);
+    --gradient-show-3: linear-gradient(135deg, #f59e0b22, #ef444422);
+    --radius: 12px;
+    --radius-sm: 8px;
+  }
+
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    line-height: 1.6;
+  }
+
+  /* ── Header ── */
+  .header {
+    background: var(--gradient-header);
+    border-bottom: 1px solid var(--border);
+    padding: 32px 24px 24px;
+    position: relative;
+    overflow: hidden;
+  }
+  .header::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse 600px 200px at 50% -80px, #7c3aed33, transparent);
+    pointer-events: none;
+  }
+  .header-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 1;
+  }
+  .header-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+  .header-title {
+    font-size: 28px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    background: linear-gradient(135deg, #c084fc, #60a5fa, #22d3ee);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .header-subtitle {
+    font-size: 14px;
+    color: var(--text-muted);
+    margin-top: 2px;
+    font-weight: 400;
+  }
+  .header-time {
+    text-align: right;
+  }
+  .header-time .time {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text);
+  }
+  .header-time .tz {
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+  .header-time .date {
+    font-size: 13px;
+    color: var(--text-dim);
+    margin-top: 2px;
+  }
+
+  /* ── Filter bar ── */
+  .filter-bar {
+    max-width: 1200px;
+    margin: 20px auto 0;
+    padding: 0 24px;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .filter-btn {
+    padding: 6px 16px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text-muted);
+    font-size: 13px;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .filter-btn:hover { border-color: var(--accent-1); color: var(--text); }
+  .filter-btn.active { background: var(--accent-1); border-color: var(--accent-1); color: #fff; }
+
+  /* ── Main ── */
+  .main {
+    max-width: 1200px;
+    margin: 24px auto;
+    padding: 0 24px 48px;
+  }
+
+  /* ── Today's Spotlight ── */
+  .spotlight { margin-bottom: 32px; display: none; }
+  .spotlight.has-today { display: block; }
+  .spotlight-title {
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    color: var(--green);
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .spotlight-title .dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--green);
+    animation: pulse-dot 1.5s ease-in-out infinite;
+  }
+  @keyframes pulse-dot {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(1.3); }
+  }
+  .spotlight-card {
+    background: linear-gradient(135deg, #22c55e0d, #22c55e05);
+    border: 1px solid #22c55e33;
+    border-radius: var(--radius);
+    padding: 20px 24px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .spotlight-card .show-badge {
+    font-size: 12px;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 6px;
+    background: var(--green);
+    color: #000;
+  }
+  .spotlight-card .ep-info { flex: 1; min-width: 200px; }
+  .spotlight-card .ep-title { font-size: 18px; font-weight: 700; }
+  .spotlight-card .ep-meta { font-size: 13px; color: var(--text-muted); margin-top: 2px; }
+  .spotlight-card .ep-time {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--green);
+    white-space: nowrap;
+  }
+
+  /* ── Show Grid ── */
+  .show-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+    gap: 20px;
+  }
+
+  /* ── Show Card ── */
+  .show-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .show-card:hover {
+    border-color: var(--border);
+    box-shadow: 0 4px 24px rgba(0,0,0,0.3);
+  }
+
+  .show-card-header {
+    padding: 20px 20px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .show-card-header .show-info { flex: 1; }
+  .show-card-header .show-name {
+    font-size: 20px;
+    font-weight: 700;
+  }
+  .show-card-header .show-meta {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-top: 2px;
+  }
+  .show-card-header .show-status {
+    font-size: 12px;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-weight: 500;
+    white-space: nowrap;
+  }
+  .show-status.running { background: #22c55e22; color: var(--green); }
+  .show-status.future { background: #f59e0b22; color: var(--amber); }
+  .show-status.ended { background: #ef444422; color: var(--red); }
+
+  /* ── Progress ── */
+  .progress-wrap {
+    padding: 0 20px;
+    margin-bottom: 12px;
+  }
+  .progress-bar {
+    height: 4px;
+    background: var(--border-subtle);
+    border-radius: 2px;
+    overflow: hidden;
+    position: relative;
+  }
+  .progress-fill {
+    height: 100%;
+    border-radius: 2px;
+    transition: width 0.6s ease;
+  }
+  .progress-fill.show-1 { background: linear-gradient(90deg, var(--accent-1), var(--accent-2)); }
+  .progress-fill.show-2 { background: linear-gradient(90deg, var(--accent-3), var(--green)); }
+  .progress-fill.show-3 { background: linear-gradient(90deg, var(--amber), var(--red)); }
+  .progress-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    color: var(--text-dim);
+    margin-top: 4px;
+  }
+
+  /* ── Episode List ── */
+  .ep-list { padding: 0 20px 16px; }
+  .ep-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border-subtle);
+    cursor: pointer;
+    transition: background 0.15s;
+    border-radius: 4px;
+    padding-left: 8px;
+    padding-right: 8px;
+  }
+  .ep-item:last-child { border-bottom: none; }
+  .ep-item:hover { background: rgba(255,255,255,0.02); }
+
+  .ep-dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    position: relative;
+  }
+  .ep-dot.past { background: var(--text-dim); }
+  .ep-dot.today {
+    background: var(--green);
+    box-shadow: 0 0 8px var(--green);
+  }
+  .ep-dot.upcoming { background: var(--border); border: 2px solid var(--text-dim); }
+  .ep-dot.today::after {
+    content: '';
+    position: absolute;
+    inset: -3px;
+    border-radius: 50%;
+    border: 2px solid var(--green);
+    animation: ring-pulse 1.5s ease-in-out infinite;
+  }
+  @keyframes ring-pulse {
+    0%, 100% { opacity: 0.6; transform: scale(1); }
+    50% { opacity: 0.2; transform: scale(1.4); }
+  }
+
+  .ep-number {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-dim);
+    min-width: 48px;
+    font-variant-numeric: tabular-nums;
+  }
+  .ep-details { flex: 1; min-width: 0; }
+  .ep-name {
+    font-size: 14px;
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .ep-name.today-ep { color: var(--green); }
+  .ep-date {
+    font-size: 12px;
+    color: var(--text-dim);
+    margin-top: 1px;
+  }
+  .ep-date strong { color: var(--text-muted); font-weight: 500; }
+  .ep-time-badge {
+    font-size: 11px;
+    padding: 3px 8px;
+    border-radius: 6px;
+    background: var(--border-subtle);
+    color: var(--text-muted);
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .ep-time-badge.today-badge { background: #22c55e22; color: var(--green); font-weight: 600; }
+
+  /* ── Empty state ── */
+  .empty-state {
+    text-align: center;
+    padding: 48px 20px;
+    color: var(--text-dim);
+  }
+  .empty-state .icon { font-size: 48px; margin-bottom: 12px; }
+  .empty-state .msg { font-size: 15px; }
+
+  /* ── Footer ── */
+  .footer {
+    text-align: center;
+    padding: 24px;
+    font-size: 12px;
+    color: var(--text-dim);
+    border-top: 1px solid var(--border-subtle);
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  .footer a { color: var(--accent-1); text-decoration: none; }
+
+  /* ── Responsive ── */
+  @media (max-width: 640px) {
+    .header { padding: 20px 16px 16px; }
+    .header-title { font-size: 22px; }
+    .header-top { flex-direction: column; }
+    .header-time { text-align: left; }
+    .main { padding: 16px; }
+    .show-grid { grid-template-columns: 1fr; }
+    .spotlight-card { flex-direction: column; align-items: flex-start; }
+    .ep-item { flex-wrap: wrap; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══ Header ═══ -->
+<header class="header">
+  <div class="header-content">
+    <div class="header-top">
+      <div>
+        <h1 class="header-title">TV Shows Tracker</h1>
+        <p class="header-subtitle">Episode release dashboard — Sri Lanka time</p>
+      </div>
+      <div class="header-time">
+        <div class="time" id="sl-time">--:--</div>
+        <div class="tz">Sri Lanka (UTC+5:30)</div>
+        <div class="date" id="sl-date">---</div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ═══ Filter Bar ═══ -->
+<div class="filter-bar">
+  <button class="filter-btn active" data-filter="all">All Shows</button>
+  <button class="filter-btn" data-filter="today">Today</button>
+  <button class="filter-btn" data-filter="upcoming">Upcoming</button>
+</div>
+
+<!-- ═══ Main ═══ -->
+<main class="main" id="app">
+  <div class="spotlight" id="spotlight"></div>
+  <div class="show-grid" id="show-grid"></div>
+</main>
+
+<footer class="footer">
+  <p>Data sourced from Wikipedia &amp; TVMaze • Updated <span id="update-date">---</span></p>
+</footer>
+
+<script>
+// ── Data ──────────────────────────────────────────────────────────
+
+const SHOWS = [
+  {
+    id: 'rick-and-morty',
+    name: 'Rick and Morty',
+    season: 'Season 9',
+    platform: 'Adult Swim / Max',
+    gradient: 'show-1',
+    status: 'running',
+    slTime: 'Mon 8:30 AM SL time',
+    schedule: [
+      { ep: 'S09E01', title: "There's Something About Morty",     date: '2026-05-24' },
+      { ep: 'S09E02', title: "Ricks Days, Seven Nights",          date: '2026-05-31' },
+      { ep: 'S09E03', title: 'Rick Fu Hustle',                   date: '2026-06-07' },
+      { ep: 'S09E04', title: 'A Ricker Runs Through It',         date: '2026-06-14' },
+      { ep: 'S09E05', title: 'Jer Bud',                          date: '2026-06-21' },
+      { ep: 'S09E06', title: 'Ericerhead',                        date: '2026-06-28' },
+      { ep: 'S09E07', title: 'MortGully: The Last Rickforest',   date: '2026-07-05' },
+      { ep: 'S09E08', title: 'Rickuiem Mort a Dream',            date: '2026-07-12' },
+      { ep: 'S09E09', title: 'Salute Your Morts',                date: '2026-07-19' },
+      { ep: 'S09E10', title: 'Field of Dreams',                  date: '2026-07-26' },
+    ]
+  },
+  {
+    id: 'xmen-97',
+    name: 'X-Men \'97',
+    season: 'Season 2',
+    platform: 'Disney+',
+    gradient: 'show-2',
+    status: 'running',
+    slTime: 'Wed 12:30 PM SL time',
+    schedule: [
+      { ep: 'S02E01', title: 'Days of Past Future - Part 1',             date: '2026-07-01' },
+      { ep: 'S02E02', title: 'A Force to be Reckoned With',              date: '2026-07-01' },
+      { ep: 'S02E03', title: 'Rise of Apocalypse: Part 1',               date: '2026-07-01' },
+      { ep: 'S02E04', title: 'Rise of Apocalypse: Part 2',               date: '2026-07-08' },
+      { ep: 'S02E05', title: 'Weapon X, Lies, and DVDs',                  date: '2026-07-15' },
+      { ep: 'S02E06', title: 'Danger.exe',                               date: '2026-07-22' },
+      { ep: 'S02E07', title: 'Strange Land, Savage Heart',               date: '2026-07-29' },
+      { ep: 'S02E08', title: "The Dead Man's Hand",                      date: '2026-08-05' },
+      { ep: 'S02E09', title: 'Survival of the Fittest',                  date: '2026-08-12' },
+    ]
+  },
+  {
+    id: 'silo',
+    name: 'Silo',
+    season: 'Season 3',
+    platform: 'Apple TV+',
+    gradient: 'show-3',
+    status: 'running',
+    slTime: 'Fri 12:30 PM SL time',
+    schedule: [
+      { ep: 'S03E01', title: 'Who Are You?',                           date: '2026-07-03' },
+      { ep: 'S03E02', title: "It's All Good",                          date: '2026-07-10' },
+      { ep: 'S03E03', title: 'A Dark Web',                              date: '2026-07-17' },
+      { ep: 'S03E04', title: "Whatever You Do, Don't Go Home",         date: '2026-07-24' },
+      { ep: 'S03E05', title: 'Memory',                                  date: '2026-07-31' },
+      { ep: 'S03E06', title: 'The Drive',                               date: '2026-08-07' },
+      { ep: 'S03E07', title: 'Radio',                                   date: '2026-08-14' },
+      { ep: 'S03E08', title: 'Gray Goo',                                date: '2026-08-21' },
+      { ep: 'S03E09', title: 'Farewell',                                 date: '2026-08-28' },
+      { ep: 'S03E10', title: 'Troy',                                    date: '2026-09-04' },
+    ]
+  }
+];
+
+// ── Helpers ───────────────────────────────────────────────────────
+
+function todayStr() {
+  const now = new Date();
+  const utc = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
+  // Sri Lanka is UTC+5:30
+  const sl = new Date(utc.getTime() + 5.5 * 3600000);
+  return sl.toISOString().slice(0, 10);
+}
+
+function classifyDate(dateStr) {
+  const t = todayStr();
+  if (dateStr === t) return 'today';
+  if (dateStr < t) return 'past';
+  return 'upcoming';
+}
+
+function formatDate(dateStr) {
+  const d = new Date(dateStr + 'T12:00:00+05:30');
+  return d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+}
+
+// ── Render Functions ──
+
+function renderSpotlight(todayEpisodes) {
+  const el = document.getElementById('spotlight');
+  if (todayEpisodes.length === 0) {
+    el.classList.remove('has-today');
+    el.innerHTML = '';
+    return;
+  }
+  el.classList.add('has-today');
+  el.innerHTML = `
+    <div class="spotlight-title"><span class="dot"></span> Airing Today</div>
+    <div class="spotlight-card">
+      <span class="show-badge">${todayEpisodes[0].show}</span>
+      <div class="ep-info">
+        <div class="ep-title">${todayEpisodes[0].ep} — ${todayEpisodes[0].title}</div>
+        <div class="ep-meta">${todayEpisodes[0].platform} • ${formatDate(todayEpisodes[0].date)}</div>
+      </div>
+      <div class="ep-time">${todayEpisodes[0].slTime}</div>
+    </div>
+  `;
+}
+
+function renderShowCard(show) {
+  const total = show.schedule.length;
+  const past = show.schedule.filter(e => classifyDate(e.date) === 'past').length;
+  const pct = Math.round((past / total) * 100);
+  const statusLabel = show.status === 'running' ? 'Airing' : show.status === 'future' ? 'Upcoming' : 'Ended';
+
+  let itemsHtml = show.schedule.map(ep => {
+    const cls = classifyDate(ep.date);
+    const dateDisplay = formatDate(ep.date);
+    return `
+      <div class="ep-item">
+        <span class="ep-dot ${cls}"></span>
+        <span class="ep-number">${ep.ep}</span>
+        <div class="ep-details">
+          <div class="ep-name ${cls === 'today' ? 'today-ep' : ''}">${ep.title}</div>
+          <div class="ep-date">${dateDisplay} <strong>·</strong> ${show.slTime}</div>
+        </div>
+        ${cls === 'today' ? `<span class="ep-time-badge today-badge">TODAY</span>` : `<span class="ep-time-badge">${show.slTime}</span>`}
+      </div>
+    `;
+  }).join('');
+
+  return `
+    <div class="show-card" data-show="${show.id}">
+      <div class="show-card-header" style="background: var(--gradient-${show.gradient});">
+        <div class="show-info">
+          <div class="show-name">${show.name}</div>
+          <div class="show-meta">${show.season} · ${show.platform} · ${total} episodes</div>
+        </div>
+        <span class="show-status ${show.status}">${statusLabel}</span>
+      </div>
+      <div class="progress-wrap">
+        <div class="progress-bar">
+          <div class="progress-fill ${show.gradient}" style="width: ${pct}%"></div>
+        </div>
+        <div class="progress-label">
+          <span>${past} aired</span>
+          <span>${total - past} remaining</span>
+        </div>
+      </div>
+      <div class="ep-list">${itemsHtml}</div>
+    </div>
+  `;
+}
+
+function renderAll(filter) {
+  const todayEps = [];
+  const grid = document.getElementById('show-grid');
+
+  let html = '';
+  SHOWS.forEach(show => {
+    // Collect today's episodes
+    show.schedule.forEach(ep => {
+      if (classifyDate(ep.date) === 'today') {
+        todayEps.push({ ...ep, show: show.name, platform: show.platform, slTime: show.slTime });
+      }
+    });
+
+    // Filter
+    if (filter === 'today') {
+      const hasToday = show.schedule.some(e => classifyDate(e.date) === 'today');
+      if (!hasToday) return;
+    }
+    if (filter === 'upcoming') {
+      const hasUpcoming = show.schedule.some(e => classifyDate(e.date) === 'upcoming');
+      if (!hasUpcoming) return;
+    }
+
+    html += renderShowCard(show);
+  });
+
+  renderSpotlight(todayEps);
+  grid.innerHTML = html || `<div class="empty-state"><div class="icon">📭</div><div class="msg">No episodes match this filter.</div></div>`;
+}
+
+// ── Clock ──
+
+function updateClock() {
+  const now = new Date();
+  const utc = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(),
+    now.getUTCHours(), now.getUTCMinutes(), now.getUTCSeconds()));
+  const sl = new Date(utc.getTime() + 5.5 * 3600000);
+  document.getElementById('sl-time').textContent =
+    sl.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true });
+  document.getElementById('sl-date').textContent =
+    sl.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+}
+
+// ── Init ──
+
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('update-date').textContent = new Date().toLocaleDateString('en-US', {
+    month: 'short', day: 'numeric', year: 'numeric'
+  });
+
+  let filter = 'all';
+  renderAll(filter);
+
+  // Filter buttons
+  document.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      filter = btn.dataset.filter;
+      renderAll(filter);
+    });
+  });
+
+  // Clock
+  updateClock();
+  setInterval(updateClock, 1000);
+});
+</script>
+</body>
+</html>
