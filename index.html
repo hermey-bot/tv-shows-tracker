@@ -265,16 +265,32 @@
     display: flex;
     align-items: center;
     gap: 12px;
-    padding: 10px 0;
+    padding: 10px 8px;
     border-bottom: 1px solid var(--border-subtle);
     cursor: pointer;
-    transition: background 0.15s;
+    transition: background 0.15s, opacity 0.3s;
     border-radius: 4px;
-    padding-left: 8px;
-    padding-right: 8px;
   }
   .ep-item:last-child { border-bottom: none; }
   .ep-item:hover { background: rgba(255,255,255,0.02); }
+  .ep-item.past {
+    opacity: 0.45;
+  }
+  .ep-item.past:hover {
+    opacity: 0.65;
+    background: rgba(255,255,255,0.01);
+  }
+  .ep-item.past .ep-name {
+    color: var(--text-dim);
+  }
+  .ep-item.past .ep-date {
+    color: var(--text-dim);
+    opacity: 0.6;
+  }
+  .ep-item.past .ep-number {
+    color: var(--text-dim);
+    opacity: 0.4;
+  }
 
   .ep-dot {
     width: 10px; height: 10px;
@@ -282,7 +298,18 @@
     flex-shrink: 0;
     position: relative;
   }
-  .ep-dot.past { background: var(--text-dim); }
+  .ep-dot.past { background: var(--text-dim); opacity: 0.5; }
+  .ep-dot.past::after {
+    content: '✓';
+    position: absolute;
+    inset: -4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 9px;
+    font-weight: 800;
+    color: var(--text-dim);
+  }
   .ep-dot.today {
     background: var(--green);
     box-shadow: 0 0 8px var(--green);
@@ -527,7 +554,7 @@ function renderShowCard(show) {
     const cls = classifyDate(ep.date);
     const dateDisplay = formatDate(ep.date);
     return `
-      <div class="ep-item">
+      <div class="ep-item ${cls === 'past' ? 'past' : ''}">
         <span class="ep-dot ${cls}"></span>
         <span class="ep-number">${ep.ep}</span>
         <div class="ep-details">
